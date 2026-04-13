@@ -79,9 +79,10 @@ module.exports = {
 
         const quotedMsg   = ctx2?.quotedMessage;
         const quotedId    = ctx2?.stanzaId;
-        // Debug: log raw context fields to identify the correct poster JID field
-        console.log('[SAVE-DBG] ctx2.participant=' + ctx2?.participant + ' ctx2.remoteJid=' + ctx2?.remoteJid + ' msg.remoteJid=' + msg.key.remoteJid);
-        const quotedOwner = ctx2?.participant || ctx2?.remoteJid || '';
+        // Poster is ctx2.participant; skip 'status@broadcast' fallback (not a phone JID)
+        const quotedOwner = ctx2?.participant
+                         || (ctx2?.remoteJid !== 'status@broadcast' ? ctx2?.remoteJid : '')
+                         || '';
 
         if (!quotedMsg) {
             return sock.sendMessage(chatId, {
@@ -149,11 +150,8 @@ module.exports = {
                 });
             }
 
-            // Confirm in the original chat
+            // Only react in original chat — full info is in the media caption sent to ownerJid
             await sock.sendMessage(chatId, { react: { text: '✅', key: msg.key } });
-            await sock.sendMessage(chatId, {
-                text: `${H}\n║\n║ ▸ *Status* : ✅ Saved to your DM\n║ ▸ *From*   : +${senderPhone}\n║ ▸ *Type*   : ${typeLabel}\n║\n${F()}`
-            }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
