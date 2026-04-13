@@ -588,6 +588,15 @@
           "timestamp": 1776018537657,
           "action": "add",
           "addedBy": "unknown"
+        },
+        {
+          "jid": "192028658917556@lid",
+          "name": "192028658917556",
+          "number": "192028658917556",
+          "addedAt": "2026-04-13T10:07:22.179Z",
+          "timestamp": 1776074842179,
+          "action": "add",
+          "addedBy": "unknown"
         }
       ],
       "120363421940295077@g.us": [
@@ -712,7 +721,7 @@
         }
       ]
     },
-    "updatedAt": "2026-04-13T08:02:44.472Z",
+    "updatedAt": "2026-04-13T10:07:22.179Z",
     "totalGroups": 6
   },
   "owner_data": {
