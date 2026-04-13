@@ -99,19 +99,36 @@ const onwaCmd = {
             }, { quoted: msg });
         }
 
+        let on = null;
+        let method = '';
+
+        // ── Primary: Keith API ─────────────────────────────────────────────
         try {
             const data = await keithFetch(`/onwhatsapp?q=${raw}`);
             const r    = data?.result;
-            const on   = r?.status === true || r?.onWhatsApp === true;
+            on     = r?.status === true || r?.onWhatsApp === true;
+            method = 'API';
+        } catch { /* fall through to native */ }
 
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  WA CHECK 〕\n║\n║ ▸ *Number* : +${raw}\n║ ▸ *Status* : ${on ? '✅ On WhatsApp' : '❌ Not on WhatsApp'}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  WA CHECK 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+        // ── Fallback: native sock.onWhatsApp() — like .pp uses sock.profilePictureUrl() ──
+        if (on === null) {
+            try {
+                const jid     = raw.includes('@') ? raw : `${raw}@s.whatsapp.net`;
+                const results = await sock.onWhatsApp(jid);
+                on     = results?.[0]?.exists === true;
+                method = 'Native';
+            } catch { on = null; }
+        }
+
+        if (on === null) {
+            return sock.sendMessage(chatId, {
+                text: `╔═|〔  WA CHECK 〕\n║\n║ ▸ *Number* : +${raw}\n║ ▸ *Status* : ⚠️ Could not determine\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         }
+
+        await sock.sendMessage(chatId, {
+            text: `╔═|〔  WA CHECK 〕\n║\n║ ▸ *Number* : +${raw}\n║ ▸ *Status* : ${on ? '✅ On WhatsApp' : '❌ Not on WhatsApp'}\n║ ▸ *Method* : ${method}\n║\n╚═|〔 ${name} 〕`
+        }, { quoted: msg });
     }
 };
 
