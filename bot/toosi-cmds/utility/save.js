@@ -125,6 +125,7 @@ module.exports = {
                 const quotedCaption = quotedMsg?.imageMessage?.caption
                                    || quotedMsg?.videoMessage?.caption
                                    || '';
+                console.log('[SAVE-CAP] len=' + quotedCaption.length + ' cap="' + quotedCaption.substring(0, 120) + '"');
                 const fromMatch = quotedCaption.match(/From[^+]*\+(\d{7,15})/);
                 if (fromMatch && fromMatch[1] !== ownerNum2) {
                     senderPhone = fromMatch[1];
