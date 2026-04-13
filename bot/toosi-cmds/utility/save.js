@@ -83,12 +83,6 @@ module.exports = {
         const quotedOwner = ctx2?.participant
                          || (ctx2?.remoteJid !== 'status@broadcast' ? ctx2?.remoteJid : '')
                          || '';
-        const _raw = quotedOwner.split('@')[0].split(':')[0];
-        const _resolved = resolveNumber(quotedOwner, sock);
-        console.log('[SAVE-DBG4] statusAttributions=' + JSON.stringify(ctx2?.statusAttributions));
-        console.log('[SAVE-DBG4] imgCtx participant=' + quotedMsg?.imageMessage?.contextInfo?.participant);
-        console.log('[SAVE-DBG4] imgCtx remoteJid=' + quotedMsg?.imageMessage?.contextInfo?.remoteJid);
-        console.log('[SAVE-DBG4] participant=' + ctx2?.participant + ' | resolved=' + _resolved);
 
         if (!quotedMsg) {
             return sock.sendMessage(chatId, {
@@ -121,7 +115,21 @@ module.exports = {
             if (!buf || !buf.length) throw new Error('Empty download buffer');
 
             // Resolve LID → real phone for display
-            const senderPhone = resolveNumber(quotedOwner, sock);
+            let senderPhone = resolveNumber(quotedOwner, sock);
+
+            // When replying to a bot-auto-forwarded status in the self-DM,
+            // ctx2.participant resolves to the owner's number (the bot/owner forwarded it).
+            // The real poster's number is embedded in the quoted caption — extract it.
+            const ownerNum2 = ownerNum; // same const, alias for clarity
+            if (senderPhone === ownerNum2) {
+                const quotedCaption = quotedMsg?.imageMessage?.caption
+                                   || quotedMsg?.videoMessage?.caption
+                                   || '';
+                const fromMatch = quotedCaption.match(/From[^+]*\+(\d{7,15})/);
+                if (fromMatch && fromMatch[1] !== ownerNum2) {
+                    senderPhone = fromMatch[1];
+                }
+            }
 
             const typeLabel =
                 type === 'image'   ? '🖼️ Image'   :
