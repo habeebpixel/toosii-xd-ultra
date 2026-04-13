@@ -3,6 +3,7 @@
 const { downloadMediaMessage } = require('@whiskeysockets/baileys');
 const { getBotName }           = require('../../lib/botname');
 const { getPhoneFromLid }      = require('../../lib/sudo-store');
+const { getStatusSender }      = require('../../lib/status-map');
 const config                   = require('../../config');
 
 const H = '╔═|〔  💾 SAVE STATUS 〕';
@@ -114,23 +115,14 @@ module.exports = {
             const buf = await downloadMediaMessage(syntheticMsg, 'buffer', {});
             if (!buf || !buf.length) throw new Error('Empty download buffer');
 
-            // Resolve LID → real phone for display
-            let senderPhone = resolveNumber(quotedOwner, sock);
-
-            // When replying to a bot-auto-forwarded status in the self-DM,
-            // ctx2.participant resolves to the owner's number (the bot/owner forwarded it).
-            // The real poster's number is embedded in the quoted caption — extract it.
-            const ownerNum2 = ownerNum; // same const, alias for clarity
-            if (senderPhone === ownerNum2) {
-                const quotedCaption = quotedMsg?.imageMessage?.caption
-                                   || quotedMsg?.videoMessage?.caption
-                                   || '';
-                console.log('[SAVE-CAP] len=' + quotedCaption.length + ' cap="' + quotedCaption.substring(0, 120) + '"');
-                const fromMatch = quotedCaption.match(/From[^+]*\+(\d{7,15})/);
-                if (fromMatch && fromMatch[1] !== ownerNum2) {
-                    senderPhone = fromMatch[1];
-                }
-            }
+            // Resolve LID → real phone for display.
+            // Priority 1: look up the quoted message ID in the status-map written by autodownloadstatus.
+            //             This recovers the real poster even when WhatsApp strips the caption on quote.
+            // Priority 2: resolve ctx2.participant LID → phone directly.
+            const mappedPhone = getStatusSender(quotedId);
+            let senderPhone   = (mappedPhone && mappedPhone !== ownerNum)
+                                    ? mappedPhone
+                                    : resolveNumber(quotedOwner, sock);
 
             const typeLabel =
                 type === 'image'   ? '🖼️ Image'   :
