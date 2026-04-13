@@ -1,134 +1,115 @@
-const { keithGet } = require('../../lib/keithapi');
+'use strict';
+
 const { getBotName } = require('../../lib/botname');
 
-// ── Helpers ────────────────────────────────────────────────────────────────
-
-function fmtDate(d) {
-    if (!d) return 'N/A';
-    try { return new Date(d).toDateString(); } catch { return d; }
+function trunc(s, n = 80) {
+    return !s ? '' : String(s).length > n ? String(s).substring(0, n) + '…' : String(s);
 }
 
-function truncate(str, n = 100) {
-    if (!str) return '';
-    return str.length > n ? str.substring(0, n) + '…' : str;
-}
-
-// ── Commands ───────────────────────────────────────────────────────────────
-
-const kbcCmd = {
-    name: 'kbcnews',
-    aliases: ['kbc', 'kbc1', 'kbcnew'],
-    description: 'Get latest KBC Channel 1 Kenya news',
-    category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        try {
-            await sock.sendMessage(chatId, { react: { text: '📺', key: msg.key } });
-            const data = await keithGet('/news/kbc');
-            if (!data.status || !data.result) throw new Error(data.error || 'No data');
-            const r = data.result;
-
-            const breaking  = (r.breakingNews   || []).slice(0, 3);
-            const featured  = (r.featuredArticles|| []).slice(0, 3);
-            const trending  = (r.trendingArticles|| []).slice(0, 3);
-
-            let out = `╔═|〔  📺 KBC NEWS 〕\n║\n`;
-
-            if (breaking.length) {
-                out += `║ 🚨 *Breaking News*\n`;
-                out += breaking.map(a => `║ ▸ ${truncate(a.title, 70)}\n║      🔗 ${a.url}`).join('\n');
-                out += '\n║\n';
-            }
-            if (featured.length) {
-                out += `║ ⭐ *Featured*\n`;
-                out += featured.map(a => `║ ▸ ${truncate(a.title, 70)}`).join('\n');
-                out += '\n║\n';
-            }
-            if (trending.length) {
-                out += `║ 🔥 *Trending*\n`;
-                out += trending.map(a => `║ ▸ ${truncate(a.title, 70)}`).join('\n');
-                out += '\n║\n';
-            }
-            out += `╚═|〔 ${name} 〕`;
-            await sock.sendMessage(chatId, { text: out }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  📺 KBC NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
+function parseRssItems(xml, limit = 6) {
+    const items = [];
+    const blocks = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
+    for (const b of blocks.slice(0, limit)) {
+        const title = (b.match(/<title[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/title>/i) ||
+                       b.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || '';
+        const link  = (b.match(/<link[^>]*>([\s\S]*?)<\/link>/i) || [])[1] ||
+                      (b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/i) || [])[1] || '';
+        const desc  = (b.match(/<description[^>]*><!\[CDATA\[([\s\S]*?)\]\]><\/description>/i) ||
+                       b.match(/<description[^>]*>([\s\S]*?)<\/description>/i) || [])[1] || '';
+        const cleanDesc = desc.replace(/<[^>]+>/g, '').replace(/&[a-z]+;/gi, ' ').trim();
+        if (title) items.push({ title: title.trim(), link: link.trim(), desc: cleanDesc });
     }
-};
+    return items;
+}
 
+async function fetchRss(url) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+        const res = await fetch(url, {
+            signal: controller.signal,
+            headers: { 'User-Agent': 'ToosiiBot/1.0', Accept: 'application/rss+xml, application/xml, text/xml' }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+    } finally { clearTimeout(timer); }
+}
+
+// ── 1. BBC World News (BBC RSS — free) ───────────────────────────────────────
 const bbcCmd = {
     name: 'bbcnews',
     aliases: ['bbc', 'bbcnew', 'worldnews'],
-    description: 'Get latest BBC top stories and world news',
+    description: 'Latest BBC world news headlines',
     category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg, args) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
+        const section = (args[0] || '').toLowerCase();
 
-        const section = args[0]?.toLowerCase();
-        const SECTIONS = { read: 'mostRead', watch: 'mostWatched', explore: 'moreToExplore', sport: 'sportSection' };
+        const RSS_URLS = {
+            sport:  'https://feeds.bbci.co.uk/sport/rss.xml',
+            tech:   'https://feeds.bbci.co.uk/news/technology/rss.xml',
+            world:  'https://feeds.bbci.co.uk/news/world/rss.xml',
+        };
+        const rssUrl = RSS_URLS[section] || 'https://feeds.bbci.co.uk/news/rss.xml';
+        const label  = section ? section.toUpperCase() : 'TOP STORIES';
 
         try {
             await sock.sendMessage(chatId, { react: { text: '🌍', key: msg.key } });
-            const data = await keithGet('/news/bbc');
-            if (!data.status || !data.result) throw new Error(data.error || 'No data');
-            const r = data.result;
+            const xml   = await fetchRss(rssUrl);
+            const items = parseRssItems(xml, 7);
+            if (!items.length) throw new Error('No news items');
 
-            const key      = SECTIONS[section] || 'topStories';
-            const label    = section ? section.toUpperCase() : 'TOP STORIES';
-            const stories  = (r[key] || r.topStories || []).slice(0, 6);
-
-            if (!stories.length) throw new Error('No stories in that section');
-
-            const list = stories.map((s, i) =>
-                `║ ▸ [${i + 1}] *${truncate(s.title, 70)}*\n${s.description ? `║      ${truncate(s.description, 70)}\n` : ''}║      🔗 ${s.url || 'N/A'}`
+            const list = items.map((item, i) =>
+                `║ ▸ [${i + 1}] *${trunc(item.title, 70)}*\n${item.desc ? `║      ${trunc(item.desc, 70)}\n` : ''}║      🔗 ${item.link}`
             ).join('\n║\n');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🌍 BBC — ${label} 〕\n║\n${list}\n║\n║ 💡 Sections: read | watch | explore | sport\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🌍 BBC — ${label} 〕\n║\n${list}\n║\n║ 💡 Sections: sport | tech | world\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🌍 BBC NEWS 〕\n║\n║ ▸ *Usage*  : ${prefix}bbcnews [read|watch|explore|sport]\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🌍 BBC NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         }
     }
 };
 
+// ── 2. Tech News (HackerNews API — free, no key) ─────────────────────────────
 const techCmd = {
     name: 'technews',
-    aliases: ['tech', 'technew', 'ieeenews'],
-    description: 'Get latest technology news from IEEE',
+    aliases: ['tech', 'technew', 'hackernews', 'hn'],
+    description: 'Latest top tech stories from Hacker News',
     category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
         try {
             await sock.sendMessage(chatId, { react: { text: '💻', key: msg.key } });
-            const data = await keithGet('/news/tech');
-            if (!data.status || !data.result) throw new Error(data.error || 'No data');
-            const r = data.result;
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 15000);
 
-            const featured = (r.featuredArticles || []).slice(0, 2);
-            const articles = (r.articles || []).slice(0, 5);
+            const idsRes = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json', { signal: controller.signal });
+            clearTimeout(timer);
+            const ids = (await idsRes.json()).slice(0, 8);
 
-            let out = `╔═|〔  💻 TECH NEWS 〕\n║\n`;
-            if (featured.length) {
-                out += `║ ⭐ *Featured*\n`;
-                out += featured.map(a => `║ ▸ *${truncate(a.title, 60)}*\n║      ${truncate(a.description, 70)}\n║      🔗 ${a.link}`).join('\n║\n');
-                out += '\n║\n';
-            }
-            if (articles.length) {
-                out += `║ 📰 *Latest Articles*\n`;
-                out += articles.map((a, i) => `║ ▸ [${i + 1}] *${truncate(a.title, 60)}*\n║      🔗 ${a.link}`).join('\n');
-                out += '\n║\n';
-            }
-            out += `╚═|〔 ${name} 〕`;
-            await sock.sendMessage(chatId, { text: out }, { quoted: msg });
+            const stories = await Promise.all(ids.map(async id => {
+                try {
+                    const r = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+                    return r.json();
+                } catch { return null; }
+            }));
+
+            const valid = stories.filter(s => s?.title && s?.url).slice(0, 7);
+            if (!valid.length) throw new Error('No stories available');
+
+            const list = valid.map((s, i) =>
+                `║ ▸ [${i + 1}] *${trunc(s.title, 70)}*\n║      ⬆️ ${s.score || 0} pts | 💬 ${s.descendants || 0}\n║      🔗 ${s.url}`
+            ).join('\n║\n');
+
+            await sock.sendMessage(chatId, {
+                text: `╔═|〔  💻 TECH NEWS (Hacker News) 〕\n║\n${list}\n║\n╚═|〔 ${name} 〕`
+            }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
                 text: `╔═|〔  💻 TECH NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
@@ -137,147 +118,25 @@ const techCmd = {
     }
 };
 
-const kenyansCmd = {
-    name: 'kenyans',
-    aliases: ['kenyanews', 'kenews', 'kenyansco'],
-    description: 'Latest Kenya news — or search: .kenyans <query>',
-    category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        const query  = args.join(' ').trim();
-
-        try {
-            await sock.sendMessage(chatId, { react: { text: '🇰🇪', key: msg.key } });
-
-            if (query) {
-                // Search mode
-                const data = await keithGet('/news/kenyans/search', { q: query });
-                if (!data.status || !data.result?.results?.length) throw new Error(data.error || 'No results found');
-                const results = data.result.results.slice(0, 6);
-                const total   = data.result.totalResults || results.length;
-                const list = results.map((r, i) =>
-                    `║ ▸ [${i + 1}] *${truncate(r.title, 65)}*\n║      📅 ${fmtDate(r.date)}\n║      🔗 ${r.url}`
-                ).join('\n║\n');
-                await sock.sendMessage(chatId, {
-                    text: `╔═|〔  🇰🇪 KENYANS SEARCH 〕\n║\n║ 🔍 *${query}* — ${total.toLocaleString()} results\n║\n${list}\n║\n║ 💡 ${prefix}kenyansread <url> for full article\n║\n╚═|〔 ${name} 〕`
-                }, { quoted: msg });
-            } else {
-                // Latest news mode
-                const data = await keithGet('/news/kenyans');
-                if (!data.status || !data.result?.length) throw new Error(data.error || 'No news available');
-                const articles = data.result.slice(0, 7);
-                const list = articles.map((a, i) =>
-                    `║ ▸ [${i + 1}] *${truncate(a.title, 65)}*\n║      👤 ${a.author || 'Kenyans.co.ke'} | 📅 ${fmtDate(a.date)}\n║      🔗 ${a.url}`
-                ).join('\n║\n');
-                await sock.sendMessage(chatId, {
-                    text: `╔═|〔  🇰🇪 KENYANS NEWS 〕\n║\n${list}\n║\n║ 💡 ${prefix}kenyans <search> to search | ${prefix}kenyansread <url> for details\n║\n╚═|〔 ${name} 〕`
-                }, { quoted: msg });
-            }
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  🇰🇪 KENYANS NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
-    }
-};
-
-const kenyansReadCmd = {
-    name: 'kenyansread',
-    aliases: ['kread', 'kenread', 'kenyansarticle'],
-    description: 'Read full article from Kenyans.co.ke — provide article URL',
-    category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        const url    = args[0];
-
-        if (!url || !url.startsWith('http')) return sock.sendMessage(chatId, {
-            text: `╔═|〔  📰 KENYANS ARTICLE 〕\n║\n║ ▸ *Usage* : ${prefix}kenyansread <kenyans.co.ke url>\n║ ▸ *Tip*   : Use ${prefix}kenyans <query> to find articles first\n║\n╚═|〔 ${name} 〕`
-        }, { quoted: msg });
-
-        try {
-            await sock.sendMessage(chatId, { react: { text: '📰', key: msg.key } });
-            const data = await keithGet('/news/kenyans/detail', { q: url });
-            if (!data.status || !data.result) throw new Error(data.error || 'Article not found');
-            const r = data.result;
-
-            const contentArr = Array.isArray(r.content) ? r.content : [r.content || r.description || ''];
-            const body = contentArr.slice(0, 4).join('\n\n');
-
-            const banner =
-                `╔═|〔  📰 KENYANS ARTICLE 〕\n║\n` +
-                `║ ▸ *Title*  : ${truncate(r.title, 80)}\n` +
-                `║ ▸ *Author* : ${r.author || 'N/A'}\n` +
-                `║ ▸ *Date*   : ${fmtDate(r.publishedDate)}\n` +
-                `║\n${truncate(body, 1500)}\n║\n` +
-                `║ 🔗 ${r.url}\n║\n` +
-                `╚═|〔 ${name} 〕`;
-
-            await sock.sendMessage(chatId, { text: banner }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  📰 KENYANS ARTICLE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
-    }
-};
-
-const newsTrackCmd = {
-    name: 'newstrack',
-    aliases: ['ntrack', 'newsupdate', 'breakingnews', 'breaking'],
-    description: 'Get live Kenya news tracker with latest updates',
-    category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        try {
-            await sock.sendMessage(chatId, { react: { text: '🔔', key: msg.key } });
-            const data = await keithGet('/news/kenyans/track');
-            if (!data.status || !data.result) throw new Error(data.error || 'No data');
-            const r = data.result;
-
-            const dayGroups = Array.isArray(r.updatesByDate) ? r.updatesByDate : [];
-            if (!dayGroups.length) throw new Error('No updates available');
-
-            let out = `╔═|〔  🔔 NEWS TRACKER 〕\n║\n║ ▸ *Total Updates* : ${r.totalUpdates || 0}\n║\n`;
-
-            // Show first 2 days, up to 3 updates each
-            for (const group of dayGroups.slice(0, 2)) {
-                out += `║ 📅 *${group.date}*\n`;
-                for (const upd of (group.updates || []).slice(0, 3)) {
-                    out += `║ ▸ ${truncate(upd.body, 90)}\n`;
-                    const link = upd.links?.[0];
-                    if (link?.text && link?.url) out += `║   → ${link.text}: ${link.url}\n`;
-                }
-                out += `║\n`;
-            }
-            out += `╚═|〔 ${name} 〕`;
-            await sock.sendMessage(chatId, { text: out }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  🔔 NEWS TRACKER 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
-    }
-};
-
+// ── 3. Football News (BBC Sport RSS — free) ───────────────────────────────────
 const footballNewsCmd = {
     name: 'footballnews',
     aliases: ['fnews', 'soccernews', 'sportnews', 'footynews'],
-    description: 'Get latest football/soccer news and headlines',
+    description: 'Latest football/soccer news from BBC Sport',
     category: 'news',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
         try {
             await sock.sendMessage(chatId, { react: { text: '⚽', key: msg.key } });
-            const data = await keithGet('/football/news');
-            if (!data.status || !data.result?.data?.items?.length) throw new Error(data.error || 'No football news');
-            const items = data.result.data.items.slice(0, 7);
+            const xml   = await fetchRss('https://feeds.bbci.co.uk/sport/football/rss.xml');
+            const items = parseRssItems(xml, 7);
+            if (!items.length) throw new Error('No football news');
+
             const list = items.map((item, i) =>
-                `║ ▸ [${i + 1}] *${truncate(item.title, 65)}*\n║      ${truncate(item.summary, 80)}`
+                `║ ▸ [${i + 1}] *${trunc(item.title, 65)}*\n${item.desc ? `║      ${trunc(item.desc, 70)}\n` : ''}║      🔗 ${item.link}`
             ).join('\n║\n');
+
             await sock.sendMessage(chatId, {
                 text: `╔═|〔  ⚽ FOOTBALL NEWS 〕\n║\n${list}\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
@@ -289,4 +148,4 @@ const footballNewsCmd = {
     }
 };
 
-module.exports = [kbcCmd, bbcCmd, techCmd, kenyansCmd, kenyansReadCmd, newsTrackCmd, footballNewsCmd];
+module.exports = [bbcCmd, techCmd, footballNewsCmd];

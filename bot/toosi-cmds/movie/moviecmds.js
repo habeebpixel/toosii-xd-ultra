@@ -1,75 +1,123 @@
-const { keithGet } = require('../../lib/keithapi');
+'use strict';
+
 const { getBotName } = require('../../lib/botname');
 
-const dramahomeCmd = {
-    name: 'dramahome',
-    aliases: ['dramatrend', 'dramalist', 'dramabox'],
-    description: 'Show latest and trending DramaBox movies',
+async function omdbFetch(params, timeoutMs = 12000) {
+    const qs = Object.entries({ apikey: 'trilogy', ...params })
+        .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const res = await fetch(`https://www.omdbapi.com/?${qs}`, {
+            signal: controller.signal, headers: { 'User-Agent': 'ToosiiBot/1.0' }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+    } finally { clearTimeout(timer); }
+}
+
+// ── Movie Search (OMDb — free) ────────────────────────────────────────────────
+const mboxCmd = {
+    name: 'mbox',
+    aliases: ['moviebox', 'movbox', 'moviesearch2', 'msearch'],
+    description: 'Search for movies and TV shows — .mbox <title>',
     category: 'movie',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg, args, prefix) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
+        const query  = args.join(' ').trim();
+        if (!query) return sock.sendMessage(chatId, {
+            text: `╔═|〔  🎥 MOVIE SEARCH 〕\n║\n║ ▸ *Usage*   : ${prefix}mbox <title>\n║ ▸ *Example* : ${prefix}mbox avengers\n║ ▸ *Tip*     : Use ${prefix}movie <title> for detailed info\n║\n╚═|〔 ${name} 〕`
+        }, { quoted: msg });
         try {
-            await sock.sendMessage(chatId, { react: { text: '🎭', key: msg.key } });
-            const data = await keithGet('/dramabox/home');
-            if (!data.status || !data.result) throw new Error(data.error || 'No data');
+            await sock.sendMessage(chatId, { react: { text: '🎥', key: msg.key } });
+            const data = await omdbFetch({ s: query });
+            if (data.Response === 'False') throw new Error(data.Error || 'No movies found');
 
-            const trending = data.result.trending || [];
-            const latest   = data.result.latest   || [];
+            const results = (data.Search || []).slice(0, 6);
+            const list = results.map((r, i) =>
+                `║ ▸ [${i + 1}] *${r.Title}* [${r.Type}]\n║      📅 ${r.Year} | 🆔 ${r.imdbID}`
+            ).join('\n║\n');
 
-            if (!trending.length && !latest.length) {
-                return sock.sendMessage(chatId, {
-                    text: `╔═|〔  🎭 DRAMABOX 〕\n║\n║ ▸ No trending or latest dramas available right now.\n║ ▸ Try: ${prefix}drama <search query>\n║\n╚═|〔 ${name} 〕`
-                }, { quoted: msg });
-            }
-
-            let out = `╔═|〔  🎭 DRAMABOX TRENDING 〕\n║\n`;
-            if (trending.length) {
-                out += `║ 🔥 *Trending*\n`;
-                out += trending.slice(0, 5).map((r, i) =>
-                    `║ ▸ [${i + 1}] *${r.title}*\n║      👁️ ${(r.views || 0).toLocaleString()} views | ID: ${r.book_id}`
-                ).join('\n');
-                out += '\n║\n';
-            }
-            if (latest.length) {
-                out += `║ 🆕 *Latest*\n`;
-                out += latest.slice(0, 5).map((r, i) =>
-                    `║ ▸ [${i + 1}] *${r.title}*\n║      👁️ ${(r.views || 0).toLocaleString()} views | ID: ${r.book_id}`
-                ).join('\n');
-                out += '\n║\n';
-            }
-            out += `╚═|〔 ${name} 〕`;
-            await sock.sendMessage(chatId, { text: out }, { quoted: msg });
+            await sock.sendMessage(chatId, {
+                text: `╔═|〔  🎥 MOVIE SEARCH 〕\n║\n║ 🔍 *${query}* — ${data.totalResults || results.length} results\n║\n${list}\n║\n║ 💡 Use ${prefix}movie <title> for full details\n║\n╚═|〔 ${name} 〕`
+            }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎭 DRAMABOX 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎥 MOVIE SEARCH 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         }
     }
 };
 
+// ── Movie by IMDB ID (OMDb — free) ────────────────────────────────────────────
+const trailerCmd = {
+    name: 'trailer',
+    aliases: ['movietrailer', 'gettrailer', 'movtrailer', 'imdbid'],
+    description: 'Get detailed movie info by IMDB ID — .trailer tt<id>',
+    category: 'movie',
+    async execute(sock, msg, args, prefix) {
+        const chatId = msg.key.remoteJid;
+        const name   = getBotName();
+        const id     = args[0]?.trim();
+        if (!id) return sock.sendMessage(chatId, {
+            text: `╔═|〔  🎬 MOVIE DETAIL 〕\n║\n║ ▸ *Usage*   : ${prefix}trailer <imdb-id>\n║ ▸ *Example* : ${prefix}trailer tt4154796\n║ ▸ *Tip*     : ${prefix}mbox <title> to find IMDb IDs\n║\n╚═|〔 ${name} 〕`
+        }, { quoted: msg });
+        try {
+            await sock.sendMessage(chatId, { react: { text: '🎬', key: msg.key } });
+            const query = id.startsWith('tt') ? { i: id } : { t: id };
+            const data  = await omdbFetch(query);
+            if (data.Response === 'False') throw new Error(data.Error || 'Movie not found');
+
+            const ratings = (data.Ratings || []).map(r => `${r.Source}: ${r.Value}`).join(' · ') || 'N/A';
+            await sock.sendMessage(chatId, {
+                text: `╔═|〔  🎬 MOVIE DETAIL 〕\n║\n` +
+                    `║ ▸ *Title*    : ${data.Title} (${data.Year})\n` +
+                    `║ ▸ *Type*     : ${data.Type}\n` +
+                    `║ ▸ *Genre*    : ${data.Genre}\n` +
+                    `║ ▸ *Director* : ${data.Director}\n` +
+                    `║ ▸ *Cast*     : ${data.Actors}\n` +
+                    `║ ▸ *Runtime*  : ${data.Runtime}\n` +
+                    `║ ▸ *Rated*    : ${data.Rated}\n` +
+                    `║ ▸ *IMDB*     : ⭐ ${data.imdbRating}/10 (${data.imdbVotes} votes)\n` +
+                    `║ ▸ *Language* : ${data.Language}\n` +
+                    `║ ▸ *Country*  : ${data.Country}\n` +
+                    `║ ▸ *Awards*   : ${data.Awards}\n` +
+                    `║\n║ 📝 *${data.Plot}*\n║\n╚═|〔 ${name} 〕`
+            }, { quoted: msg });
+        } catch (e) {
+            await sock.sendMessage(chatId, {
+                text: `╔═|〔  🎬 MOVIE DETAIL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+            }, { quoted: msg });
+        }
+    }
+};
+
+// ── Drama Search (OMDb TV type) ───────────────────────────────────────────────
 const dramaCmd = {
     name: 'drama',
-    aliases: ['dramasearch', 'dramaboxsearch', 'dbox'],
-    description: 'Search DramaBox for any drama or series',
+    aliases: ['dramasearch', 'dramalist', 'tvshow'],
+    description: 'Search for TV dramas and series — .drama <title>',
     category: 'movie',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg, args, prefix) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
         const query  = args.join(' ').trim();
         if (!query) return sock.sendMessage(chatId, {
-            text: `╔═|〔  🎭 DRAMA SEARCH 〕\n║\n║ ▸ *Usage* : ${prefix}drama <title or keyword>\n║ ▸ *Example* : ${prefix}drama love in the city\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  🎭 DRAMA SEARCH 〕\n║\n║ ▸ *Usage*   : ${prefix}drama <title>\n║ ▸ *Example* : ${prefix}drama game of thrones\n║\n╚═|〔 ${name} 〕`
         }, { quoted: msg });
         try {
             await sock.sendMessage(chatId, { react: { text: '🎭', key: msg.key } });
-            const data = await keithGet('/dramabox/search', { q: query });
-            if (!data.status || !data.result?.length) throw new Error(data.error || 'No dramas found');
-            const results = data.result.slice(0, 6);
+            const data = await omdbFetch({ s: query, type: 'series' });
+            if (data.Response === 'False') throw new Error(data.Error || 'No dramas found');
+
+            const results = (data.Search || []).slice(0, 6);
             const list = results.map((r, i) =>
-                `║ ▸ [${i + 1}] *${r.title}*\n║      👁️ ${(r.views || 0).toLocaleString()} views\n║      🆔 ID: \`${r.book_id}\``
+                `║ ▸ [${i + 1}] *${r.Title}* (${r.Year})\n║      🆔 ${r.imdbID}`
             ).join('\n║\n');
+
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎭 DRAMA SEARCH 〕\n║\n║ 🔍 *${query}*\n║\n${list}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎭 DRAMA SEARCH 〕\n║\n║ 🔍 *${query}*\n║\n${list}\n║\n║ 💡 ${prefix}trailer <imdbID> for details\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
@@ -79,12 +127,13 @@ const dramaCmd = {
     }
 };
 
+// ── Actor / Cast Search (OMDb) ────────────────────────────────────────────────
 const actorCmd = {
     name: 'actor',
     aliases: ['actress', 'actorsearch', 'celeb', 'cast'],
-    description: 'Search for any movie actor or actress info',
+    description: 'Find movies starring an actor — .actor <name>',
     category: 'movie',
-    async execute(sock, msg, args, prefix, ctx) {
+    async execute(sock, msg, args, prefix) {
         const chatId = msg.key.remoteJid;
         const name   = getBotName();
         const query  = args.join(' ').trim();
@@ -93,14 +142,16 @@ const actorCmd = {
         }, { quoted: msg });
         try {
             await sock.sendMessage(chatId, { react: { text: '🎬', key: msg.key } });
-            const data = await keithGet('/actor/search', { q: query });
-            if (!data.status || !data.result?.length) throw new Error(data.error || 'Actor not found');
-            const results = data.result.slice(0, 5);
+            const data = await omdbFetch({ s: query });
+            if (data.Response === 'False') throw new Error(data.Error || 'Nothing found');
+
+            const results = (data.Search || []).slice(0, 6);
             const list = results.map((r, i) =>
-                `║ ▸ [${i + 1}] *${r.name}*\n║      🎭 ${r.knownFor || 'N/A'}\n║      🔗 ${r.detailUrl || 'N/A'}`
-            ).join('\n║\n');
+                `║ ▸ [${i + 1}] *${r.Title}* [${r.Type}] (${r.Year})`
+            ).join('\n');
+
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎬 ACTOR SEARCH 〕\n║\n║ 🔍 *${query}*\n║\n${list}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎬 ACTOR SEARCH 〕\n║\n║ 🔍 *${query}*\n║\n${list}\n║\n║ 💡 ${prefix}trailer <title or imdbID> for full details\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
@@ -110,81 +161,4 @@ const actorCmd = {
     }
 };
 
-const mboxCmd = {
-    name: 'mbox',
-    aliases: ['moviebox', 'movbox', 'boxmovie'],
-    description: 'Search MovieBox for any movie or TV show',
-    category: 'movie',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        const query  = args.join(' ').trim();
-        if (!query) return sock.sendMessage(chatId, {
-            text: `╔═|〔  🎥 MOVIEBOX SEARCH 〕\n║\n║ ▸ *Usage* : ${prefix}mbox <title>\n║ ▸ *Example* : ${prefix}mbox avengers\n║ ▸ *Tip* : Use ${prefix}trailer <moviebox-url> to get trailer\n║\n╚═|〔 ${name} 〕`
-        }, { quoted: msg });
-        try {
-            await sock.sendMessage(chatId, { react: { text: '🎥', key: msg.key } });
-            const data = await keithGet('/moviebox/search', { q: query });
-            if (!data.status || !data.result?.results?.length) throw new Error(data.error || 'No movies found');
-            const results = data.result.results.slice(0, 6);
-            const total   = data.result.count || results.length;
-            const list = results.map((r, i) =>
-                `║ ▸ [${i + 1}] *${r.title}* [${r.type || 'movie'}]\n║      ⭐ ${r.rating || 'N/A'} | 🔗 ${r.url}`
-            ).join('\n║\n');
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎥 MOVIEBOX SEARCH 〕\n║\n║ 🔍 *${query}* — ${total} results\n║\n${list}\n║\n║ 💡 *Tip* : Copy URL → use ${prefix}trailer <url>\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎥 MOVIEBOX SEARCH 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
-    }
-};
-
-const trailerCmd = {
-    name: 'trailer',
-    aliases: ['movietrailer', 'gettrailer', 'movtrailer'],
-    description: 'Get movie trailer info — use a MovieBox URL or a movie name',
-    category: 'movie',
-    async execute(sock, msg, args, prefix, ctx) {
-        const chatId = msg.key.remoteJid;
-        const name   = getBotName();
-        const input  = args.join(' ').trim();
-        if (!input) return sock.sendMessage(chatId, {
-            text: `╔═|〔  🎬 MOVIE TRAILER 〕\n║\n║ ▸ *Usage (URL)*  : ${prefix}trailer <moviebox.ph URL>\n║ ▸ *Usage (name)* : ${prefix}trailer avengers\n║ ▸ *Tip*          : ${prefix}mbox <title> to get URL first\n║\n╚═|〔 ${name} 〕`
-        }, { quoted: msg });
-        try {
-            await sock.sendMessage(chatId, { react: { text: '🎬', key: msg.key } });
-
-            let movieUrl = input;
-
-            // If not a URL, auto-search moviebox to get the URL
-            if (!input.startsWith('http')) {
-                const search = await keithGet('/moviebox/search', { q: input });
-                if (!search.status || !search.result?.results?.length) throw new Error('Movie not found in MovieBox');
-                movieUrl = search.result.results[0].url;
-            }
-
-            const data = await keithGet('/movie/trailer', { q: movieUrl });
-            if (!data.status || !data.result) throw new Error(data.error || 'Trailer not found');
-
-            const r = data.result;
-            const title  = r.title?.replace(/^Watch\s+/i, '').replace(/\s+Streaming Online.*/i, '') || 'Unknown';
-            const desc   = (r.description || '').substring(0, 200);
-            const banner =
-                `╔═|〔  🎬 MOVIE TRAILER 〕\n║\n` +
-                `║ ▸ *Title* : ${title}\n` +
-                `║ ▸ *Link*  : ${r.url || movieUrl}\n` +
-                (desc ? `║\n║ 📝 ${desc}${r.description?.length > 200 ? '...' : ''}\n║\n` : `║\n`) +
-                `╚═|〔 ${name} 〕`;
-            await sock.sendMessage(chatId, { text: banner }, { quoted: msg });
-        } catch (e) {
-            await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎬 MOVIE TRAILER 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
-            }, { quoted: msg });
-        }
-    }
-};
-
-module.exports = [dramahomeCmd, dramaCmd, actorCmd, mboxCmd, trailerCmd];
+module.exports = [mboxCmd, trailerCmd, dramaCmd, actorCmd];
