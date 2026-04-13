@@ -21,13 +21,35 @@ module.exports = {
         try {
             let dlUrl, isVid;
 
+            // 1. Primary: ig endpoint
             try {
                 const data = await casperGet('/api/downloader/ig', { url });
-                if (!data.success) throw new Error(data.error || 'Casper: no result');
-                dlUrl = data.download_url || data.all_media?.[0]?.url;
-                if (!dlUrl) throw new Error('Casper: no media URL');
-                isVid = dlUrl.includes('.mp4') || data.type === 'video';
-            } catch {
+                if (data.success) {
+                    dlUrl = data.download_url || data.all_media?.[0]?.url;
+                    if (dlUrl) {
+                        isVid = dlUrl.includes('.mp4') || data.type === 'video';
+                    }
+                }
+            } catch {}
+
+            // 2. Fallback: reelsvideo endpoint (great for reels/videos)
+            if (!dlUrl) {
+                try {
+                    const data = await casperGet('/api/downloader/reelsvideo', { url });
+                    if (data.success) {
+                        if (data.videos?.length) {
+                            dlUrl = data.videos[0]?.url || data.videos[0]?.download_url;
+                            isVid = true;
+                        } else if (data.images?.length) {
+                            dlUrl = data.images[0]?.url || data.images[0];
+                            isVid = false;
+                        }
+                    }
+                } catch {}
+            }
+
+            // 3. Keith fallback
+            if (!dlUrl) {
                 const data2 = await keithTry(['/download/instadl', '/download/instaposts'], { url });
                 dlUrl = extractUrl(data2.result);
                 if (!dlUrl) throw new Error('No download URL found');
