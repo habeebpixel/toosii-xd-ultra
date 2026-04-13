@@ -267,7 +267,7 @@ module.exports = [
 // Standalone .move command for tictactoe moves
 module.exports.push({
     name: 'move',
-    aliases: ['tttmove', 'play'],
+    aliases: ['tttmove', 'mv'],
     description: 'Make a move in TicTacToe (1-9)',
     category: 'games',
     async execute(sock, msg, args, prefix, ctx) {
