@@ -1403,6 +1403,7 @@ let heartbeatInterval = null;
 let lastActivityTime = Date.now();
 let connectionAttempts = 0;
 let connectionStableTimer = null;
+let autoRestartTimer     = null;
 let MAX_RETRY_ATTEMPTS = 10;
 let BOT_MODE = 'public';
 let WHITELIST = new Set();
@@ -4914,6 +4915,14 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     conflictCount = 0;
                     isConflictRecovery = false;
                 }, 300000);
+
+                // ── Auto-restart every 90 min to prevent memory accumulation ──
+                if (autoRestartTimer) clearTimeout(autoRestartTimer);
+                autoRestartTimer = setTimeout(() => {
+                    UltraCleanLogger.info('🔄 Scheduled memory-cleanup restart (90 min uptime)');
+                    setTimeout(() => process.exit(0), 1500);
+                }, 90 * 60 * 1000);
+
                 startHeartbeat(sock);
                 setupAntiGroupStatusListener(sock);
                 setupAntiTagListener(sock);
@@ -5137,6 +5146,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                 isConnected = false;
                 updateWebStatus({ connected: false });
                 if (connectionStableTimer) { clearTimeout(connectionStableTimer); connectionStableTimer = null; }
+                if (autoRestartTimer)      { clearTimeout(autoRestartTimer);      autoRestartTimer = null; }
                 stopHeartbeat();
                 
                 const closeCode = lastDisconnect?.error?.output?.statusCode || 'unknown';
