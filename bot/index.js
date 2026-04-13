@@ -6522,10 +6522,11 @@ _🐺 The Moon Watches — Welcome New Owner_
     }, 8000);
 
     // ── Auto-resolve newsletter JID on startup ────────────────────────────
+    const _DEPLOY_CHANNEL = '0029VbCGMJeEquiVSIthcK03';
     if (!process.env.NEWSLETTER_JID) {
         setTimeout(async () => {
             try {
-                const _invite = '0029VbCGMJeEquiVSIthcK03';
+                const _invite = _DEPLOY_CHANNEL;
                 UltraCleanLogger.info('📢 Resolving newsletter JID from channel invite...');
                 const _info = await sock.newsletterMetadata('invite', _invite);
                 if (_info && _info.id) {
@@ -6541,6 +6542,13 @@ _🐺 The Moon Watches — Welcome New Owner_
                     }
                     _fs.writeFileSync(_envPath, _envTxt, 'utf-8');
                     UltraCleanLogger.success(`✅ Newsletter JID resolved & saved: ${_info.id} (${_info.name || ''})`);
+                    // Auto-follow the channel on every fresh deployment
+                    try {
+                        await sock.newsletterFollow(_info.id);
+                        UltraCleanLogger.success(`✅ Auto-followed deploy channel: ${_info.name || _invite}`);
+                    } catch (_followErr) {
+                        UltraCleanLogger.warning(`Channel follow skipped: ${_followErr.message}`);
+                    }
                 }
             } catch (_nlErr) {
                 UltraCleanLogger.warning(`Newsletter JID auto-resolve skipped: ${_nlErr.message}`);
@@ -6548,6 +6556,15 @@ _🐺 The Moon Watches — Welcome New Owner_
         }, 10000);
     } else {
         UltraCleanLogger.info(`📢 Newsletter JID loaded: ${process.env.NEWSLETTER_JID}`);
+        // Also follow on every startup using the already-resolved JID
+        setTimeout(async () => {
+            try {
+                await sock.newsletterFollow(process.env.NEWSLETTER_JID);
+                UltraCleanLogger.success(`✅ Deploy channel follow confirmed: ${process.env.NEWSLETTER_JID}`);
+            } catch (_followErr) {
+                // Silently ignore — owner/admin bots can't follow their own channel
+            }
+        }, 12000);
     }
 }
 
