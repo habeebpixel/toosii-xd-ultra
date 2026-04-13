@@ -115,10 +115,12 @@ module.exports = {
             if (isOwnRepo) {
                 // ── Own bot repo — clean CTA card ─────────────────────────
                 const stars = ghOk ? num(r.stargazers_count) : '—';
+                const forks = ghOk ? num(r.forks_count)      : '—';
                 lines = [
                     `╔═|〔  🤖 TOOSII-XD ULTRA 〕`,
                     `║`,
                     `║ ⭐ *Stars* : ${stars}`,
+                    `║ 🍴 *Forks* : ${forks}`,
                     `║`,
                     `║ 🔗 https://github.com/${OWN_REPO}`,
                     `║`,
