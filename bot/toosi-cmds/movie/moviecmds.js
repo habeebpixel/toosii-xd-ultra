@@ -78,16 +78,24 @@ const movieCmd = {
             const data = await sbMovie(results[0].id);
             if (!data) throw new Error('Could not fetch movie details');
 
-            const stars   = '⭐'.repeat(Math.round((parseFloat(data.imdb_rating || 0)) / 2));
+            const genre   = (data.cats || '').split(',').map(g => g.trim()).filter(Boolean)
+                            .map(g => g[0].toUpperCase() + g.slice(1)).join(', ') || 'N/A';
+            const country = Array.isArray(data.country_list)
+                            ? data.country_list.join(', ')
+                            : (data.country_list || 'N/A');
+            const lang    = typeof data.audio_lang === 'string' && data.audio_lang
+                            ? data.audio_lang.toUpperCase()
+                            : 'N/A';
+
             const caption =
                 `╔═|〔  🎬 MOVIE INFO 〕\n║\n` +
                 `║ ▸ *Title*   : ${data.title} (${data.year})\n` +
-                `║ ▸ *Rating*  : ⭐ ${data.imdb_rating || 'N/A'}/10 ${stars}\n` +
+                `║ ▸ *Rating*  : ⭐ ${data.imdb_rating || 'N/A'}/10\n` +
                 `║ ▸ *Runtime* : ${fmtRuntime(data.runtime)} | ${data.content_rating || 'NR'}\n` +
-                `║ ▸ *Genre*   : ${data.cats || 'N/A'}\n` +
+                `║ ▸ *Genre*   : ${genre}\n` +
                 `║ ▸ *Director*: ${data.director || 'N/A'}\n` +
                 `║ ▸ *Cast*    : ${(data.actors || 'N/A').split(',').slice(0, 3).join(', ')}\n` +
-                `║ ▸ *Country* : ${data.country_list || 'N/A'} | ${data.language || 'N/A'}\n` +
+                `║ ▸ *Country* : ${country} | 🗣 ${lang}\n` +
                 `║\n║ 📝 *Plot*: ${(data.description || 'N/A').substring(0, 200)}…\n║\n` +
                 `║ 🎬 ${prefix}trailer ${data.title} — for trailer video\n║\n` +
                 `╚═|〔 ${name} 〕`;
