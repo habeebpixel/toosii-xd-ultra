@@ -266,6 +266,104 @@ const hymnCmd = {
     }
 };
 
+// ── 7. MEDITATE ───────────────────────────────────────────────────────────────
+const SESSIONS = [
+    {
+        title   : '🌅 Morning Clarity',
+        steps   : ['Sit comfortably and close your eyes', 'Breathe in slowly for *4 counts*', 'Hold for *4 counts*', 'Breathe out for *6 counts*', 'Repeat 5 times, letting each exhale release tension'],
+        focus   : 'Set one clear intention for today. What matters most?',
+        affirm  : '_I am focused, calm, and ready for the day ahead._',
+    },
+    {
+        title   : '🌊 Deep Calm',
+        steps   : ['Find a quiet space and sit or lie down', 'Breathe in through your nose for *5 counts*', 'Hold gently for *2 counts*', 'Exhale fully through your mouth for *7 counts*', 'Feel your body soften with every breath out'],
+        focus   : 'Notice any tension in your body. Breathe directly into it and let it melt.',
+        affirm  : '_I release what I cannot control. Peace flows through me._',
+    },
+    {
+        title   : '🔥 Inner Strength',
+        steps   : ['Sit tall with your spine straight', 'Take a powerful breath in for *3 counts*', 'Hold at the top for *3 counts*', 'Exhale with purpose for *3 counts*', 'Repeat 7 times, feeling energy build with each cycle'],
+        focus   : 'Visualize a challenge you are facing. See yourself moving through it with ease.',
+        affirm  : '_I have the strength to overcome anything placed before me._',
+    },
+    {
+        title   : '🌙 Evening Wind-Down',
+        steps   : ['Dim your environment and sit quietly', 'Breathe in gently for *4 counts*', 'Breathe out slowly for *8 counts*', 'With each exhale, let the events of the day dissolve', 'Repeat until your mind feels still'],
+        focus   : 'Reflect on one thing you are grateful for from today, no matter how small.',
+        affirm  : '_Today was enough. I did enough. I am enough._',
+    },
+    {
+        title   : '🌿 Present Moment',
+        steps   : ['Stop whatever you are doing and be still', 'Take 3 deep natural breaths', 'Name 5 things you can see around you', 'Name 3 things you can physically feel', 'Return to your breath and breathe naturally for 1 minute'],
+        focus   : 'You are exactly where you need to be right now.',
+        affirm  : '_This moment is enough. I am grounded and present._',
+    },
+];
+
+const BREATHE_TECHNIQUES = [
+    { name: '4-7-8 Breathing', steps: 'Inhale *4s* → Hold *7s* → Exhale *8s*', benefit: 'Calms the nervous system, great for anxiety' },
+    { name: 'Box Breathing', steps: 'Inhale *4s* → Hold *4s* → Exhale *4s* → Hold *4s*', benefit: 'Used by Navy SEALs to stay calm under pressure' },
+    { name: 'Belly Breathing', steps: 'Place hand on belly → Inhale deeply until belly rises → Exhale fully', benefit: 'Activates the relaxation response in seconds' },
+    { name: '2-1-4-1 Breathing', steps: 'Inhale *2s* → Hold *1s* → Exhale *4s* → Hold *1s*', benefit: 'Quickly reduces stress and clears the mind' },
+];
+
+const meditatCmd = {
+    name       : 'meditate',
+    aliases    : ['meditation', 'mindful', 'breathe', 'calm', 'relax'],
+    description: 'Get a guided meditation session or breathing technique',
+    category   : 'spiritual',
+    async execute(sock, msg, args, prefix) {
+        const chatId = msg.key.remoteJid;
+        const name   = getBotName();
+        try { await sock.sendMessage(chatId, { react: { text: '🧘', key: msg.key } }); } catch {}
+
+        const sub = args[0]?.toLowerCase();
+
+        // ── breathe sub-command ───────────────────────────────────────────────
+        if (sub === 'breathe' || sub === 'breathing' || sub === 'breath') {
+            const t = BREATHE_TECHNIQUES[Math.floor(Math.random() * BREATHE_TECHNIQUES.length)];
+            return sock.sendMessage(chatId, {
+                text: [
+                    `╔═|〔  🌬️ BREATHING TECHNIQUE 〕`,
+                    `║`,
+                    `║ ▸ *Technique* : ${t.name}`,
+                    `║ ▸ *Steps*     : ${t.steps}`,
+                    `║ ▸ *Benefit*   : ${t.benefit}`,
+                    `║`,
+                    `║ 💡 Practice for at least 3 minutes`,
+                    `║`,
+                    `╚═|〔 ${name} 〕`,
+                ].join('\n')
+            }, { quoted: msg });
+        }
+
+        // ── default: full guided session ──────────────────────────────────────
+        const s = SESSIONS[Math.floor(Math.random() * SESSIONS.length)];
+        const stepLines = s.steps.map((st, i) => `║  ${i + 1}. ${st}`);
+
+        return sock.sendMessage(chatId, {
+            text: [
+                `╔═|〔  🧘 MEDITATION 〕`,
+                `║`,
+                `║ *${s.title}*`,
+                `║`,
+                `║ 🌬️ *Breathing Guide*`,
+                ...stepLines,
+                `║`,
+                `║ 🎯 *Focus Point*`,
+                `║  ${s.focus}`,
+                `║`,
+                `║ ✨ *Affirmation*`,
+                `║  ${s.affirm}`,
+                `║`,
+                `║ 💡 *Try also* : ${prefix}meditate breathe`,
+                `║`,
+                `╚═|〔 ${name} 〕`,
+            ].join('\n')
+        }, { quoted: msg });
+    }
+};
+
 module.exports = [
     bibleCmd,
     randBibleCmd,
@@ -273,4 +371,5 @@ module.exports = [
     surahListCmd,
     aiMuslimCmd,
     hymnCmd,
+    meditatCmd,
 ];
