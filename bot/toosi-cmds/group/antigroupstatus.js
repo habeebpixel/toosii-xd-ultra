@@ -10,7 +10,7 @@ function loadCfg() {
     try { return JSON.parse(fs.readFileSync(CFG_FILE, 'utf8')); } catch { return {}; }
 }
 function saveCfg(d) {
-    try { fs.writeFileSync(CFG_FILE, JSON.stringify(d, null, 2)); } catch {}
+    try { fs.mkdirSync(path.dirname(CFG_FILE), { recursive: true }); fs.writeFileSync(CFG_FILE, JSON.stringify(d, null, 2)); } catch {}
 }
 
 /** Bare phone number from any JID format */

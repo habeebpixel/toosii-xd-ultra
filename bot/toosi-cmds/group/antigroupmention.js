@@ -26,10 +26,10 @@ const WARN_MAX = 3;
 function bareNum(jid = '') { return jid.split('@')[0].split(':')[0]; }
 
 function loadCfg()  { try { return JSON.parse(fs.readFileSync(CFG_FILE,  'utf8')); } catch { return {}; } }
-function saveCfg(d) { try { fs.writeFileSync(CFG_FILE,  JSON.stringify(d, null, 2)); } catch {} }
+function saveCfg(d) { try { fs.mkdirSync(path.dirname(CFG_FILE),  { recursive: true }); fs.writeFileSync(CFG_FILE,  JSON.stringify(d, null, 2)); } catch {} }
 
 function loadWarns()  { try { return JSON.parse(fs.readFileSync(WARN_FILE, 'utf8')); } catch { return {}; } }
-function saveWarns(d) { fs.mkdirSync(path.dirname(WARN_FILE), { recursive: true }); fs.writeFileSync(WARN_FILE, JSON.stringify(d, null, 2)); }
+function saveWarns(d) { try { fs.mkdirSync(path.dirname(WARN_FILE), { recursive: true }); fs.writeFileSync(WARN_FILE, JSON.stringify(d, null, 2)); } catch {} }
 
 function warnKey(chatId, jid) { return `${chatId}::${bareNum(jid)}`; }
 function defaultGcfg() { return { enabled: false, action: 'delete', exemptAdmins: true, exemptSudos: true }; }
