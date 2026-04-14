@@ -24,7 +24,7 @@ const bibleCmd = {
         const name   = getBotName();
         const query  = args.join(' ').trim().replace(/\s+/g, '+');
         if (!query) return sock.sendMessage(chatId, {
-            text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Usage* : ${prefix}bible <reference>\n║ ▸ *Example* : ${prefix}bible john3:16\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Usage* : ${prefix}bible <reference>\n║ ▸ *Example* : ${prefix}bible john3:16\n║\n╚═╝`
         }, { quoted: msg });
         try {
             await sock.sendMessage(chatId, { react: { text: '📖', key: msg.key } });
@@ -33,11 +33,11 @@ const bibleCmd = {
 
             const verses = (data.verses || []).map(v => `║ ▸ [${v.verse}] ${v.text.trim()}`).join('\n');
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Reference* : ${data.reference}\n║ ▸ *Version*   : ${data.translation_name || 'WEB'}\n║\n${verses}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Reference* : ${data.reference}\n║ ▸ *Version*   : ${data.translation_name || 'WEB'}\n║\n${verses}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Tip*    : Use format like john3:16 or psalm23\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  📖 BIBLE 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Tip*    : Use format like john3:16 or psalm23\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -54,7 +54,7 @@ const lyricsCmd = {
         const name   = getBotName();
         const query  = args.join(' ').trim();
         if (!query) return sock.sendMessage(chatId, {
-            text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Usage* : ${prefix}lyrics <song name>\n║ ▸ *Example* : ${prefix}lyrics faded alan walker\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Usage* : ${prefix}lyrics <song name>\n║ ▸ *Example* : ${prefix}lyrics faded alan walker\n║\n╚═╝`
         }, { quoted: msg });
         try {
             await sock.sendMessage(chatId, { react: { text: '🎵', key: msg.key } });
@@ -66,11 +66,11 @@ const lyricsCmd = {
             if (!lyricsText) throw new Error('Lyrics not available for this song');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Song*   : ${track.name || query}\n║ ▸ *Artist* : ${track.trackName || 'Unknown'}\n║\n${lyricsText}${lyricsText.length >= 3000 ? '\n║\n║ ▸ [lyrics truncated]' : ''}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Song*   : ${track.name || query}\n║ ▸ *Artist* : ${track.trackName || 'Unknown'}\n║\n${lyricsText}${lyricsText.length >= 3000 ? '\n║\n║ ▸ [lyrics truncated]' : ''}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎵 LYRICS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
