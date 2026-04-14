@@ -33,11 +33,11 @@ module.exports = {
 
             await sock.sendMessage(chatId, {
                 image: buf,
-                caption: `╔═|〔  PROFILE PIC 〕\n║\n║ ▸ *User* : ${label.startsWith('+') ? label : '+' + label}\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  PROFILE PIC 〕\n║\n║ ▸ *User* : ${label.startsWith('+') ? label : '+' + label}\n║\n╚═╝`
             }, { quoted: msg });
         } catch {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  PROFILE PIC 〕\n║\n║ ▸ *User*   : ${label.startsWith('+') ? label : '+' + label}\n║ ▸ *Status* : ❌ No profile picture\n║            (hidden or not set)\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  PROFILE PIC 〕\n║\n║ ▸ *User*   : ${label.startsWith('+') ? label : '+' + label}\n║ ▸ *Status* : ❌ No profile picture\n║            (hidden or not set)\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
