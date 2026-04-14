@@ -74,11 +74,11 @@ const bbcCmd = {
             ).join('\n║\n');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🌍 BBC NEWS — ${label} 〕\n║\n${list}\n║\n║ 💡 Topics: ${sections}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🌍 BBC NEWS — ${label} 〕\n║\n${list}\n║\n║ 💡 Topics: ${sections}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🌍 BBC NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🌍 BBC NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -117,11 +117,11 @@ const techCmd = {
             ).join('\n║\n');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  💻 TECH NEWS (Hacker News) 〕\n║\n${list}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  💻 TECH NEWS (Hacker News) 〕\n║\n${list}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  💻 TECH NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  💻 TECH NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -147,11 +147,11 @@ const footballNewsCmd = {
             ).join('\n║\n');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  ⚽ FOOTBALL NEWS 〕\n║\n${list}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  ⚽ FOOTBALL NEWS 〕\n║\n${list}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  ⚽ FOOTBALL NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  ⚽ FOOTBALL NEWS 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
