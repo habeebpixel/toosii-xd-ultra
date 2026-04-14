@@ -730,6 +730,12 @@ const { handleStatusMention: statusMentionHandler } = require('./toosi-cmds/grou
 const { setupAntiGroupStatusListener } = require('./toosi-cmds/group/antigroupstatus.js');
 const { setupAntiTagListener }         = require('./toosi-cmds/group/antitag.js');
 const { setupAntiGroupMentionListener } = require('./toosi-cmds/group/antigroupmention.js');
+  const { setupWordFilterListener }       = require('./toosi-cmds/group/wordfilter.js');
+  const { setupAutoReplyListener }        = require('./toosi-cmds/group/autoreply.js');
+  const { setupGroupStatsListener }       = require('./toosi-cmds/group/groupstats.js');
+  const { setupSlowModeListener }         = require('./toosi-cmds/group/slowmode.js');
+  const { isWhitelisted }                 = require('./toosi-cmds/owner/whitelist.js');
+  const { isBlacklisted }                 = require('./toosi-cmds/owner/blacklist.js');
 
 // Import antidelete system (listeners registered in index.js, always active)
 const { initAntidelete, antideleteStoreMessage, antideleteHandleUpdate, updateAntideleteSock } = require('./toosi-cmds/owner/antidelete.js');
@@ -4974,6 +4980,10 @@ async function startBot(loginMode = 'auto', loginData = null) {
                 setupAntiGroupStatusListener(sock);
                 setupAntiTagListener(sock);
                 setupAntiGroupMentionListener(sock);
+                  setupWordFilterListener(sock);
+                  setupAutoReplyListener(sock);
+                  setupGroupStatsListener(sock);
+                  setupSlowModeListener(sock);
                 setTimeout(() => {
                     if (isConnected && !isConflictRecovery) handleSuccessfulConnection(sock, loginMode, loginData).catch(() => {});
                 }, 2000);
@@ -7476,7 +7486,13 @@ async function handleIncomingMessage(sock, msg) {
             return;
         }
         
-        // Quick mode gate BEFORE rate limiter — prevents info leaks in silent/groups/dms modes
+        // Blacklist check — blocked users get no response
+          {
+              const _blNum = senderJid.split('@')[0].split(':')[0];
+              if (isBlacklisted(_blNum)) return;
+          }
+
+          // Quick mode gate BEFORE rate limiter — prevents info leaks in silent/groups/dms modes
         {
             const _qMode = (_cache_bot_mode?.mode || BOT_MODE || 'public').toLowerCase();
             if (_qMode !== 'public' && _qMode !== 'buttons' && _qMode !== 'channel' && _qMode !== 'default') {
@@ -7498,7 +7514,12 @@ async function handleIncomingMessage(sock, msg) {
                         const _qPhone = resolvePhoneFromLid(senderJid) || lidPhoneCache.get(_qRaw);
                         if (_qPhone && (_qPhone === _qOwnerNum || isSudoNumber(_qPhone))) _qBypass = true;
                     }
-                    if (!_qBypass) {
+                    // Whitelist bypass — whitelisted users pass regardless of mode
+                      if (!_qBypass) {
+                          const _wlNum = senderJid.split('@')[0].split(':')[0];
+                          if (isWhitelisted(_wlNum)) _qBypass = true;
+                      }
+                      if (!_qBypass) {
                         if (_qMode === 'silent') return;
                         if (_qMode === 'groups' && !isGroup) return;
                         if (_qMode === 'dms'    &&  isGroup) return;
