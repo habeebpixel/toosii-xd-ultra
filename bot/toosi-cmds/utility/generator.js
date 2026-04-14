@@ -114,13 +114,13 @@ module.exports = [
                         `║`,
                         `║ 💡 ${prefix}password 24 +sym — 24 chars with symbols`,
                         `║`,
-                        `╚═|〔 ${name} 〕`,
+                        `╚═╝`,
                     ].join('\n')
                 }, { quoted: msg });
 
             } catch (e) {
                 await sock.sendMessage(chatId, {
-                    text: `╔═|〔  PASSWORD GEN 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  PASSWORD GEN 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
                 }, { quoted: msg });
             }
         }
@@ -147,7 +147,7 @@ module.exports = [
                     `║`,
                     `║ ▸ *Result*     : *${result}*${streak}`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n'),
                 mentions: [`${sender}@s.whatsapp.net`],
             }, { quoted: msg });
@@ -174,7 +174,7 @@ module.exports = [
                         `║ ▸ *Example* : ${prefix}age 15/08/2000`,
                         `║ ▸ *Example* : ${prefix}age 1990-06-01`,
                         `║`,
-                        `╚═|〔 ${name} 〕`,
+                        `╚═╝`,
                     ].join('\n')
                 }, { quoted: msg });
             }
@@ -182,7 +182,7 @@ module.exports = [
             const birth = parseDate(input);
             if (!birth || birth > new Date()) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  AGE CALCULATOR 〕\n║\n║ ▸ *Status* : ❌ Invalid date\n║ ▸ *Format* : DD/MM/YYYY or YYYY-MM-DD\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  AGE CALCULATOR 〕\n║\n║ ▸ *Status* : ❌ Invalid date\n║ ▸ *Format* : DD/MM/YYYY or YYYY-MM-DD\n║\n╚═╝`
                 }, { quoted: msg });
             }
 
@@ -201,7 +201,7 @@ module.exports = [
                     `║`,
                     `║ ▸ *Next Bday* : in ${daysToNext} day${daysToNext !== 1 ? 's' : ''}${daysToNext === 0 ? ' 🎉 TODAY!' : ''}`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -227,7 +227,7 @@ module.exports = [
                         `║ ▸ *Example* : ${prefix}countdown 25/12/2026`,
                         `║ ▸ *Example* : ${prefix}countdown 2026-01-01`,
                         `║`,
-                        `╚═|〔 ${name} 〕`,
+                        `╚═╝`,
                     ].join('\n')
                 }, { quoted: msg });
             }
@@ -235,14 +235,14 @@ module.exports = [
             const target = parseDate(input);
             if (!target) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  COUNTDOWN 〕\n║\n║ ▸ *Status* : ❌ Invalid date\n║ ▸ *Format* : DD/MM/YYYY or YYYY-MM-DD\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  COUNTDOWN 〕\n║\n║ ▸ *Status* : ❌ Invalid date\n║ ▸ *Format* : DD/MM/YYYY or YYYY-MM-DD\n║\n╚═╝`
                 }, { quoted: msg });
             }
 
             const cd = calcCountdown(target);
             if (!cd) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  COUNTDOWN 〕\n║\n║ ▸ *Status* : ❌ That date has already passed!\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  COUNTDOWN 〕\n║\n║ ▸ *Status* : ❌ That date has already passed!\n║\n╚═╝`
                 }, { quoted: msg });
             }
 
@@ -260,7 +260,7 @@ module.exports = [
                     cd.totalDays === 0 ? `║ 🎉 *TODAY IS THE DAY!*` : null,
                     cd.totalDays <= 7  ? `║ 🔥 Less than a week away!` : null,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].filter(Boolean).join('\n')
             }, { quoted: msg });
         }
