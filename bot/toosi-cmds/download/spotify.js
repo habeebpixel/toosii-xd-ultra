@@ -14,7 +14,7 @@ module.exports = {
 
         if (!url) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Usage* : ${prefix}spotify <track_url>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Usage* : ${prefix}spotify <track_url>\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -70,12 +70,12 @@ module.exports = {
                 quality = '128kbps';
             }
 
-            const banner = `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Track*   : ${title}\n║ ▸ *Quality* : ${quality}\n║ ▸ *Size*    : ${(buf.length/1024/1024).toFixed(2)} MB\n║\n╚═|〔 ${name} 〕`;
+            const banner = `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Track*   : ${title}\n║ ▸ *Quality* : ${quality}\n║ ▸ *Size*    : ${(buf.length/1024/1024).toFixed(2)} MB\n║\n╚═╝`;
             await sock.sendMessage(chatId, { document: buf, mimetype: 'audio/mpeg', fileName: `${title}.mp3`, caption: banner }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  SPOTIFY 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
