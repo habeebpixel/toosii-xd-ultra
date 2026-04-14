@@ -5,6 +5,10 @@ const { getBotName } = require('../../lib/botname');
 const REPO   = 'TOOSII102/toosii-xd-ultra';
 const BRANCH = 'main';
 
+const IS_HEROKU  = !!process.env.DYNO;
+const IS_REPLIT  = !!process.env.REPL_ID;
+const PLATFORM   = IS_HEROKU ? 'Heroku' : IS_REPLIT ? 'Replit' : 'VPS';
+
 function run(cmd, opts = {}) {
     return execSync(cmd, { encoding: 'utf8', timeout: 120000, stdio: 'pipe', ...opts }).trim();
 }
@@ -48,10 +52,8 @@ module.exports = {
             }, { quoted: msg });
         }
 
-        // ── Do everything silently, send ONE final result ─────────────────────
-        let latest, pullErr, npmErr;
-        const current = getCurrentCommit();
-
+        // ── Fetch latest GitHub commit info ───────────────────────────────────
+        let latest;
         try { latest = await getLatestCommit(); }
         catch (err) {
             return sock.sendMessage(chatId, {
@@ -59,25 +61,57 @@ module.exports = {
             }, { quoted: msg });
         }
 
-        const shortLatest  = latest.sha?.slice(0, 7) || 'unknown';
-        const shortCurrent = current?.slice(0, 7)     || 'unknown';
+        const shortLatest = latest.sha?.slice(0, 7) || 'unknown';
 
-        // Already up to date
-        if (current && latest.sha && current === latest.sha) {
+        // ── Heroku: git pull is not supported — filesystem is ephemeral ───────
+        if (IS_HEROKU) {
             return sock.sendMessage(chatId, {
                 text: [
                     `╔═|〔  UPDATE 〕`,
                     `║`,
-                    `║ ▸ *Status*  : ✅ Already up to date`,
-                    `║ ▸ *Commit*  : ${shortCurrent}`,
-                    `║ ▸ *Changes* : ${latest.message}`,
+                    `║ ▸ *Platform* : ☁️ Heroku`,
+                    `║ ▸ *Status*   : ℹ️ Git pull not supported`,
+                    `║`,
+                    `║  Heroku's filesystem is ephemeral — files`,
+                    `║  reset on every dyno restart, so git pull`,
+                    `║  cannot persist updates.`,
+                    `║`,
+                    `║ ▸ *Latest commit* : ${shortLatest}`,
+                    `║ ▸ *Message*       : ${latest.message}`,
+                    `║`,
+                    `║  *To update on Heroku:*`,
+                    `║  1. Push new code to GitHub (main branch)`,
+                    `║  2. Heroku Dashboard → Deploy → Manual deploy`,
+                    `║     → Deploy Branch  (heroku branch)`,
+                    `║  OR enable Auto-deploy on the heroku branch`,
+                    `║`,
+                    `║ ▸ Use *${prefix}restart* to just restart the bot`,
                     `║`,
                     `${foot}`,
                 ].join('\n')
             }, { quoted: msg });
         }
 
-        // git pull
+        // ── Replit / VPS: run git pull ────────────────────────────────────────
+        const current = getCurrentCommit();
+        const shortCurrent = current?.slice(0, 7) || 'unknown';
+
+        if (current && latest.sha && current === latest.sha) {
+            return sock.sendMessage(chatId, {
+                text: [
+                    `╔═|〔  UPDATE 〕`,
+                    `║`,
+                    `║ ▸ *Status*   : ✅ Already up to date`,
+                    `║ ▸ *Platform* : ${PLATFORM}`,
+                    `║ ▸ *Commit*   : ${shortCurrent}`,
+                    `║ ▸ *Changes*  : ${latest.message}`,
+                    `║`,
+                    `${foot}`,
+                ].join('\n')
+            }, { quoted: msg });
+        }
+
+        let pullErr, npmErr;
         try {
             run(`git fetch origin ${BRANCH}`);
             run(`git reset --hard origin/${BRANCH}`);
@@ -89,20 +123,19 @@ module.exports = {
             }, { quoted: msg });
         }
 
-        // npm install (silent, non-fatal)
         try { run('npm install --production', { cwd: process.cwd() }); }
         catch (e) { npmErr = true; }
 
-        // ── Single final message ──────────────────────────────────────────────
         await sock.sendMessage(chatId, {
             text: [
                 `╔═|〔  UPDATE 〕`,
                 `║`,
-                `║ ▸ *Status*  : ✅ Updated successfully`,
-                `║ ▸ *From*    : ${shortCurrent}`,
-                `║ ▸ *To*      : ${shortLatest}`,
-                `║ ▸ *Changes* : ${latest.message}`,
-                `║ ▸ *Deps*    : ${npmErr ? '⚠️ npm had warnings' : '✅ Installed'}`,
+                `║ ▸ *Status*   : ✅ Updated successfully`,
+                `║ ▸ *Platform* : ${PLATFORM}`,
+                `║ ▸ *From*     : ${shortCurrent}`,
+                `║ ▸ *To*       : ${shortLatest}`,
+                `║ ▸ *Changes*  : ${latest.message}`,
+                `║ ▸ *Deps*     : ${npmErr ? '⚠️ npm had warnings' : '✅ Installed'}`,
                 `║`,
                 `║ ▸ 🔄 Restarting in 3s...`,
                 `║`,
