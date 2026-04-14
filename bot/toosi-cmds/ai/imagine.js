@@ -51,7 +51,7 @@ module.exports = {
                     `║`,
                     `║ ⏳ Takes ~10-20 seconds`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -68,7 +68,7 @@ module.exports = {
 
         if (!prompt) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  🎨 AI IMAGE 〕\n║\n║ ▸ Please describe what to generate!\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎨 AI IMAGE 〕\n║\n║ ▸ Please describe what to generate!\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -84,7 +84,7 @@ module.exports = {
                 `║ ▸ *Size*   : ${size.label}`,
                 `║ ▸ *Model*  : Flux (Toosii AI)`,
                 `║`,
-                `╚═|〔 ${name} 〕`,
+                `╚═╝`,
             ].join('\n');
 
             await sock.sendMessage(chatId, {
@@ -95,7 +95,7 @@ module.exports = {
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🎨 AI IMAGE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║ ▸ 💡 Try a simpler or more descriptive prompt\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🎨 AI IMAGE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║ ▸ 💡 Try a simpler or more descriptive prompt\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
