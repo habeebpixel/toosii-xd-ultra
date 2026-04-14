@@ -32,7 +32,7 @@ module.exports = {
 
         if (!quoted || (!hasImg && !hasVid && !hasStk)) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  STICKER 〕\n║\n║ ▸ *Usage* : Reply to an image or\n║            short video with *${prefix}s*\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  STICKER 〕\n║\n║ ▸ *Usage* : Reply to an image or\n║            short video with *${prefix}s*\n║\n╚═╝`
             }, { quoted: msg });
         }
 
