@@ -4,7 +4,7 @@ const { getBotName } = require('../../lib/botname');
 
 function box(title, icon, content) {
     const name = getBotName();
-    return `╔═|〔  ${icon} ${title} 〕\n║\n${content}\n║\n╚═|〔 ${name} 〕`;
+    return `╔═|〔  ${icon} ${title} 〕\n║\n${content}\n║\n╚═╝`;
 }
 
 async function apiFetch(url, timeoutMs = 12000) {
@@ -30,7 +30,7 @@ const dictCmd = {
 
         const word = args[0]?.toLowerCase().trim();
         if (!word) return sock.sendMessage(chatId, {
-            text: `╔═|〔  DICTIONARY 〕\n║\n║ ▸ *Usage*   : ${prefix}dict <word>\n║ ▸ *Example* : ${prefix}dict serendipity\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  DICTIONARY 〕\n║\n║ ▸ *Usage*   : ${prefix}dict <word>\n║ ▸ *Example* : ${prefix}dict serendipity\n║\n╚═╝`
         }, { quoted: msg });
 
         try {
@@ -52,11 +52,11 @@ const dictCmd = {
             }
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  DICTIONARY 〕\n║\n${out}\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DICTIONARY 〕\n║\n${out}\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  DICTIONARY 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Word*   : ${word}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DICTIONARY 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Word*   : ${word}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -75,7 +75,7 @@ const fruitCmd = {
 
         const q = args.join(' ').trim();
         if (!q) return sock.sendMessage(chatId, {
-            text: `╔═|〔  FRUIT INFO 〕\n║\n║ ▸ *Usage*   : ${prefix}fruit <name>\n║ ▸ *Example* : ${prefix}fruit mango\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  FRUIT INFO 〕\n║\n║ ▸ *Usage*   : ${prefix}fruit <name>\n║ ▸ *Example* : ${prefix}fruit mango\n║\n╚═╝`
         }, { quoted: msg });
 
         try {
@@ -99,11 +99,11 @@ const fruitCmd = {
             ].filter(Boolean).join('\n');
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  FRUIT INFO 〕\n║\n${lines}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  FRUIT INFO 〕\n║\n${lines}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  FRUIT INFO 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Fruit*  : ${q}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  FRUIT INFO 〕\n║\n║ ▸ *Status* : ❌ Not found\n║ ▸ *Fruit*  : ${q}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -127,11 +127,11 @@ const poemCmd = {
 
             const lines = (r.lines || []).join('\n');
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  POEM 〕\n║\n║ ▸ *Title*  : ${r.title}\n║ ▸ *Author* : ${r.author || 'Unknown'}\n║\n${lines.slice(0, 1500)}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  POEM 〕\n║\n║ ▸ *Title*  : ${r.title}\n║ ▸ *Author* : ${r.author || 'Unknown'}\n║\n${lines.slice(0, 1500)}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  POEM 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  POEM 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -150,7 +150,7 @@ const currencyCmd = {
 
         const code = (args[0] || '').toUpperCase().trim();
         if (!code || code.length < 2) return sock.sendMessage(chatId, {
-            text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Usage*   : ${prefix}currency <code>\n║ ▸ *Example* : ${prefix}currency KES\n║ ▸ *Note*    : Base is always USD\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Usage*   : ${prefix}currency <code>\n║ ▸ *Example* : ${prefix}currency KES\n║ ▸ *Note*    : Base is always USD\n║\n╚═╝`
         }, { quoted: msg });
 
         try {
@@ -160,11 +160,11 @@ const currencyCmd = {
             if (!rate) throw new Error(`Currency code "${code}" not found`);
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Base*   : 1 USD\n║ ▸ *Target* : ${code}\n║ ▸ *Rate*   : ${rate}\n║ ▸ *Date*   : ${data.time_last_update_utc?.split(' 00:')[0] || 'Today'}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Base*   : 1 USD\n║ ▸ *Target* : ${code}\n║ ▸ *Rate*   : ${rate}\n║ ▸ *Date*   : ${data.time_last_update_utc?.split(' 00:')[0] || 'Today'}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Code*   : ${code}\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  CURRENCY 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Code*   : ${code}\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
