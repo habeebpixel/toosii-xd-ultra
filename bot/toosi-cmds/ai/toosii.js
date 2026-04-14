@@ -38,8 +38,9 @@ module.exports = {
         try {
             await sock.sendMessage(chatId, { react: { text: '🤖', key: msg.key } });
             const reply = await pollinationsAI(prompt, 'openai');
+            const fmtReply = reply.split('\n').map(l => `║ ${l}`).join('\n');
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🤖 TOOSII AI 〕\n║\n${reply}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🤖 TOOSII AI 〕\n║\n${fmtReply}\n║\n╚═|〔 ${name} 〕`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
