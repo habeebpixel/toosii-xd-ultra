@@ -218,9 +218,9 @@ function renderKeithScores(games, filter) {
         return `║ ${badge} *${g.p1}* vs *${g.p2}* — ${score} [${st}]`;
     };
     const sections = [];
-    if (live.length) sections.push(`║ 🔴 *LIVE (${live.length})*`, '║', ...live.slice(0,6).map(fmtG));
-    if (ft.length)   sections.push('║', `║ ✅ *FULL TIME (${ft.length})*`, '║', ...ft.slice(0,8).map(fmtG));
-    if (ns.length && !filter) sections.push('║', `║ 🕐 *UPCOMING (${ns.length})*`, '║', ...ns.slice(0,5).map(fmtG));
+    if (live.length) sections.push(`║ 🔴 *LIVE (${live.length})*`, '║', ...live.map(fmtG));
+    if (ft.length)   sections.push('║', `║ ✅ *FULL TIME (${ft.length})*`, '║', ...ft.map(fmtG));
+    if (ns.length && !filter) sections.push('║', `║ 🕐 *UPCOMING (${ns.length})*`, '║', ...ns.map(fmtG));
     sections.push('║', `║ 📊 Total: ${games.length} matches`);
     if (filter) sections.push(`║ 🔍 Filter: "${filter}"`);
     return sections;
@@ -239,7 +239,7 @@ const liveScoresCmd = {
 
         // ── Try Casper first ──────────────────────────────────────────────────
         try {
-            const data = await casperSports({ action: 'matches', limit: 50 });
+            const data = await casperSports({ action: 'matches', limit: 200 });
             if (!data.success) throw new Error(data.message || 'Casper unavailable');
             let matches = data.matches || [];
             if (filter) matches = matches.filter(m =>
@@ -260,9 +260,9 @@ const liveScoresCmd = {
                 return `║ ${badge} *${m.homeTeam}* vs *${m.awayTeam}* — ${score}\n║      🏆 ${m.competition?.short || m.competition?.name || 'N/A'} | 📅 ${m.startDate || 'N/A'}`;
             };
             const sections = [];
-            if (live.length)     sections.push(`║ 🔴 *LIVE (${live.length})*`, '║', ...live.slice(0,5).map(fmtM));
-            if (results.length)  sections.push('║', `║ ✅ *RESULTS (${results.length})*`, '║', ...results.slice(0,5).map(fmtM));
-            if (fixtures.length) sections.push('║', `║ 🕐 *UPCOMING (${fixtures.length})*`, '║', ...fixtures.slice(0,6).map(fmtM));
+            if (live.length)     sections.push(`║ 🔴 *LIVE (${live.length})*`, '║', ...live.map(fmtM));
+            if (results.length)  sections.push('║', `║ ✅ *RESULTS (${results.length})*`, '║', ...results.map(fmtM));
+            if (fixtures.length) sections.push('║', `║ 🕐 *UPCOMING (${fixtures.length})*`, '║', ...fixtures.map(fmtM));
             sections.push('║', `║ 📊 Total: ${matches.length} matches`);
             if (filter) sections.push(`║ 🔍 Filter: "${filter}"`);
             return await sock.sendMessage(chatId, { text: box('FOOTBALL SCORES', '⚽', sections) }, { quoted: msg });
