@@ -4,7 +4,7 @@ const { removeSudoNumber, getSudoList } = require('../../lib/sudo-store');
 const { getBotName } = require('../../lib/botname');
 
 const H = '╔═|〔  DEL SUDO 〕';
-const F = () => `╚═|〔 ${getBotName()} 〕`;
+const F = () => `╚═╝`;
 
 function resolveRealNumber(jid, sock) {
     if (!jid) return null;
