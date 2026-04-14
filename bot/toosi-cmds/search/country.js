@@ -30,7 +30,7 @@ module.exports = {
         const query = args.join(' ').trim();
         if (!query) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  COUNTRY INFO 🌍 〕\n║\n║ ▸ *Usage*   : ${prefix}country <name>\n║ ▸ *Example* : ${prefix}country Kenya\n║ ▸ *Example* : ${prefix}country United States\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  COUNTRY INFO 🌍 〕\n║\n║ ▸ *Usage*   : ${prefix}country <name>\n║ ▸ *Example* : ${prefix}country Kenya\n║ ▸ *Example* : ${prefix}country United States\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -71,14 +71,14 @@ module.exports = {
                 `║ ▸ *Driving*    : ${driving}`,
                 `║ ▸ *Independent*: ${independent}`,
                 `║`,
-                `╚═|〔 ${name} 〕`,
+                `╚═╝`,
             ].join('\n');
 
             await sock.sendMessage(chatId, { text: lines }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  COUNTRY INFO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  COUNTRY INFO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
