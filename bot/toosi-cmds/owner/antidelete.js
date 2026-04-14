@@ -82,8 +82,15 @@ function _getChatMode(cfg, chatId) {
 
 // ── Exported event handler functions (index.js imports these) ────────────────
 
+const _adRegistered = new WeakSet();
+
 function initAntidelete(sock) {
     _sock = sock;
+    if (_adRegistered.has(sock)) {
+        console.log('[ANTIDELETE] Self-listener already registered for this sock — skipping duplicate');
+        return Promise.resolve();
+    }
+    _adRegistered.add(sock);
     sock.ev.on('messages.upsert', ({ messages }) => {
         for (const msg of messages) {
             try {
