@@ -103,7 +103,7 @@ module.exports = [
                         `║ 💡 *Usage* : ${prefix}font <style> <text>`,
                         `║ 💡 *Example*: ${prefix}font bold Hello World`,
                         `║`,
-                        `╚═|〔 ${name} 〕`,
+                        `╚═╝`,
                     ].join('\n')
                 }, { quoted: msg });
             }
@@ -115,7 +115,7 @@ module.exports = [
                     `║`,
                     `║ ${output}`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -142,7 +142,7 @@ module.exports = [
                     `║`,
                     lines,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -158,12 +158,12 @@ module.exports = [
             const name   = getBotName();
             const text   = args.join(' ').trim();
             if (!text) return sock.sendMessage(chatId, {
-                text: `╔═|〔  REVERSE ↩️ 〕\n║\n║ ▸ *Usage* : ${prefix}reverse <text>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  REVERSE ↩️ 〕\n║\n║ ▸ *Usage* : ${prefix}reverse <text>\n║\n╚═╝`
             }, { quoted: msg });
 
             const reversed = [...text].reverse().join('');
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  REVERSE ↩️ 〕\n║\n║ *Input*  : ${text}\n║ *Output* : ${reversed}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  REVERSE ↩️ 〕\n║\n║ *Input*  : ${text}\n║ *Output* : ${reversed}\n║\n╚═╝`
             }, { quoted: msg });
         }
     },
