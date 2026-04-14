@@ -27,7 +27,7 @@ module.exports = {
 
         if (!quoted?.stickerMessage) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  TO IMAGE 〕\n║\n║ ▸ *Usage* : Reply to a sticker\n║            with *${prefix}toimg*\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  TO IMAGE 〕\n║\n║ ▸ *Usage* : Reply to a sticker\n║            with *${prefix}toimg*\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -49,7 +49,7 @@ module.exports = {
 
             await sock.sendMessage(chatId, {
                 image: pngBuf,
-                caption: `╔═|〔  TO IMAGE 〕\n║\n║ ▸ *Status* : ✅ Converted\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  TO IMAGE 〕\n║\n║ ▸ *Status* : ✅ Converted\n║\n╚═╝`
             }, { quoted: msg });
         } finally {
             try { fs.unlinkSync(tmpIn); } catch {}
