@@ -14,7 +14,8 @@ module.exports = {
         const h = Math.floor(uptime / 3600);
         const m = Math.floor((uptime % 3600) / 60);
         const s = Math.floor(uptime % 60);
-        const owner  = cfg.OWNER_NUMBER ? `+${cfg.OWNER_NUMBER}` : 'Unknown';
+        const ownerNum = global.OWNER_NUMBER || global.OWNER_CLEAN_NUMBER || cfg.OWNER_NUMBER || '';
+        const owner  = ownerNum ? `+${ownerNum.replace(/[^0-9]/g,'')}` : 'Unknown';
         const mode   = (process.env.BOT_MODE || cfg.MODE || 'public').toUpperCase();
 
         const text = [
