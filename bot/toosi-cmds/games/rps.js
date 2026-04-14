@@ -36,7 +36,7 @@ module.exports = {
                     `║ ▸ 📄 ${prefix}rps paper`,
                     `║ ▸ ✂️ ${prefix}rps scissors`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -67,7 +67,7 @@ module.exports = {
                 `║ ▸ ${result}`,
                 `║ ▸ ${taunt}`,
                 `║`,
-                `╚═|〔 ${name} 〕`,
+                `╚═╝`,
             ].join('\n'),
             mentions: [`${sender}@s.whatsapp.net`],
         }, { quoted: msg });
