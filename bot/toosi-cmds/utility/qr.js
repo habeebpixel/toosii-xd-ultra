@@ -27,7 +27,7 @@ module.exports = {
                     `║ ▸ *Example* : ${prefix}qr Hello, scan me!`,
                     `║ ▸ *Tip*     : Reply any message with ${prefix}qr`,
                     `║`,
-                    `╚═|〔 ${name} 〕`,
+                    `╚═╝`,
                 ].join('\n')
             }, { quoted: msg });
         }
@@ -39,12 +39,12 @@ module.exports = {
             const buf = Buffer.from(await res.arrayBuffer());
             if (!buf.length) throw new Error('Empty QR image returned');
 
-            const caption = `╔═|〔  QR CODE 📷 〕\n║\n║ ▸ *Data* : ${text.length > 60 ? text.slice(0, 60) + '…' : text}\n║\n╚═|〔 ${name} 〕`;
+            const caption = `╔═|〔  QR CODE 📷 〕\n║\n║ ▸ *Data* : ${text.length > 60 ? text.slice(0, 60) + '…' : text}\n║\n╚═╝`;
             await sock.sendMessage(chatId, { image: buf, caption }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  QR CODE 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  QR CODE 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
