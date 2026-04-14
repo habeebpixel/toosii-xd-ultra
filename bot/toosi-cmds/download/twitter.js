@@ -14,7 +14,7 @@ module.exports = {
 
         if (!url) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Usage* : ${prefix}twitter <url>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Usage* : ${prefix}twitter <url>\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -39,12 +39,12 @@ module.exports = {
             }
 
             const buf    = await dlBuffer(dlUrl);
-            const banner = `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Quality*: ${qual}\n║ ▸ *Size*   : ${(buf.length/1024/1024).toFixed(2)} MB\n║\n╚═|〔 ${name} 〕`;
+            const banner = `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Quality*: ${qual}\n║ ▸ *Size*   : ${(buf.length/1024/1024).toFixed(2)} MB\n║\n╚═╝`;
             await sock.sendMessage(chatId, { video: buf, caption: banner }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  TWITTER / X 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
