@@ -4936,9 +4936,9 @@ async function startBot(loginMode = 'auto', loginData = null) {
                 // ── Auto-restart every 90 min to prevent memory accumulation ──
                 if (autoRestartTimer) clearTimeout(autoRestartTimer);
                 autoRestartTimer = setTimeout(() => {
-                    UltraCleanLogger.info('🔄 Scheduled memory-cleanup restart (45 min uptime)');
+                    UltraCleanLogger.info('🔄 Scheduled memory-cleanup restart (15 min uptime)');
                     setTimeout(() => process.exit(0), 1500);
-                }, 45 * 60 * 1000);
+                }, 15 * 60 * 1000);
 
                 startHeartbeat(sock);
                 // ── Reset all per-group and global toggles to OFF on startup ──
