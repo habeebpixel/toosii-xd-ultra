@@ -18,7 +18,7 @@ module.exports = {
 
         if (!ctx?.isOwnerUser && !ctx?.isSudoUser) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -30,7 +30,7 @@ module.exports = {
 
             if (!groups.length) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ Bot is not in any groups\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ Bot is not in any groups\n║\n╚═╝`
                 }, { quoted: msg });
             }
 
@@ -54,7 +54,7 @@ module.exports = {
                 : '';
 
             const sent = await sock.sendMessage(chatId, {
-                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Total* : ${total} groups\n║\n${rows}\n${footer}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Total* : ${total} groups\n║\n${rows}\n${footer}\n║\n╚═╝`
             }, { quoted: msg });
             // Track this message's ID so index.js can route number replies to mygroups
             if (sent?.key?.id) globalThis.groupListMsgIds.add(sent.key.id);
@@ -63,7 +63,7 @@ module.exports = {
         } catch (err) {
             await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } });
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Error* : ${err.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  MY GROUPS 〕\n║\n║ ▸ *Error* : ${err.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
