@@ -16,21 +16,21 @@ module.exports = {
 
         if (!chatId.endsWith('@g.us')) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Group only\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Group only\n║\n╚═╝`
             }, { quoted: msg });
         }
 
         const { ok } = await checkPrivilege(sock, chatId, msg, ctx);
         if (!ok) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Permission denied\n║ ▸ *Reason* : Sudo users and group admins only\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Permission denied\n║ ▸ *Reason* : Sudo users and group admins only\n║\n╚═╝`
             }, { quoted: msg });
         }
 
         const confirm = args[0]?.toLowerCase();
         if (confirm !== 'yes') {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ ⚠️ This will kick ALL non-admin\n║    members from the group!\n║\n║ ▸ *Confirm* : ${prefix}kickall yes\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ ⚠️ This will kick ALL non-admin\n║    members from the group!\n║\n║ ▸ *Confirm* : ${prefix}kickall yes\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -44,11 +44,11 @@ module.exports = {
             });
             if (!members.length) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ No non-admin members to kick\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ No non-admin members to kick\n║\n╚═╝`
                 }, { quoted: msg });
             }
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ Kicking ${members.length} member(s)...\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ Kicking ${members.length} member(s)...\n║\n╚═╝`
             }, { quoted: msg });
             let kicked = 0;
             for (const p of members) {
@@ -59,14 +59,14 @@ module.exports = {
                 } catch {}
             }
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Kicked* : ${kicked}/${members.length}\n║ ▸ *Status* : ✅ Done\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Kicked* : ${kicked}/${members.length}\n║ ▸ *Status* : ✅ Done\n║\n╚═╝`
             });
         } catch (e) {
             const reason = /not-authorized|forbidden/i.test(e.message)
                 ? 'Bot is not an admin — promote the bot first'
                 : e.message;
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${reason}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  KICK ALL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${reason}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
