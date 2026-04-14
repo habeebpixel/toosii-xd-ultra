@@ -128,7 +128,7 @@ module.exports = {
         const name   = getBotName();
 
         const H   = `╔═|〔  🎨 EPHOTO 〕`;
-        const F   = `╚═|〔 ${name} 〕`;
+        const F   = `╚═╝`;
         const SEP = '║';
 
         // ── list ──────────────────────────────────────────────────────────────
