@@ -14,7 +14,7 @@ module.exports = {
 
         if (!url) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  SOUNDCLOUD 〕\n║\n║ ▸ *Usage* : ${prefix}sc <soundcloud_url>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  SOUNDCLOUD 〕\n║\n║ ▸ *Usage* : ${prefix}sc <soundcloud_url>\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -42,7 +42,7 @@ module.exports = {
                 `║ ▸ *Quality* : 128kbps`,
                 `║ ▸ *Size*    : ${(buf.length / 1024 / 1024).toFixed(2)} MB`,
                 `║`,
-                `╚═|〔 ${name} 〕`,
+                `╚═╝`,
             ].filter(Boolean).join('\n');
 
             await sock.sendMessage(chatId, {
@@ -54,7 +54,7 @@ module.exports = {
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  SOUNDCLOUD 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  SOUNDCLOUD 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
