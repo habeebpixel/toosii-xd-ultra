@@ -41,11 +41,11 @@ const wallpaperCmd = {
             if (buf.length < 5000) throw new Error('No image returned');
             await sock.sendMessage(chatId, {
                 image: buf, mimetype: 'image/jpeg',
-                caption: `╔═|〔  🖼️ WALLPAPER 〕\n║\n║ ▸ *Query* : ${query}\n║ ▸ *Size*  : ${(buf.length / 1024).toFixed(0)} KB\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  🖼️ WALLPAPER 〕\n║\n║ ▸ *Query* : ${query}\n║ ▸ *Size*  : ${(buf.length / 1024).toFixed(0)} KB\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🖼️ WALLPAPER 〕\n║\n║ ▸ *Usage*  : ${prefix}wallpaper <keyword>\n║ ▸ *Status* : ❌ Failed — ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🖼️ WALLPAPER 〕\n║\n║ ▸ *Usage*  : ${prefix}wallpaper <keyword>\n║ ▸ *Status* : ❌ Failed — ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -67,11 +67,11 @@ const catCmd = {
             if (!buf || buf.length < 3000) throw new Error('No cat today 😿');
             await sock.sendMessage(chatId, {
                 image: buf, mimetype: 'image/jpeg',
-                caption: `╔═|〔  🐱 CAT PHOTO 〕\n║\n║ ▸ *Meow!* Here's your random cat 😻\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  🐱 CAT PHOTO 〕\n║\n║ ▸ *Meow!* Here's your random cat 😻\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🐱 CAT PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🐱 CAT PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -99,11 +99,11 @@ const dogCmd = {
             const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
             await sock.sendMessage(chatId, {
                 image: buf, mimetype: mime,
-                caption: `╔═|〔  🐶 DOG PHOTO 〕\n║\n║ ▸ *Woof!* Here's your random dog 🐾\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  🐶 DOG PHOTO 〕\n║\n║ ▸ *Woof!* Here's your random dog 🐾\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🐶 DOG PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🐶 DOG PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -125,11 +125,11 @@ const foxCmd = {
             const buf  = await dlBuffer(data.image);
             await sock.sendMessage(chatId, {
                 image: buf, mimetype: 'image/jpeg',
-                caption: `╔═|〔  🦊 FOX PHOTO 〕\n║\n║ ▸ *Yip!* Here's your random fox 🦊\n║\n╚═|〔 ${name} 〕`
+                caption: `╔═|〔  🦊 FOX PHOTO 〕\n║\n║ ▸ *Yip!* Here's your random fox 🦊\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  🦊 FOX PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  🦊 FOX PHOTO 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
