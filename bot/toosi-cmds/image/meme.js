@@ -47,14 +47,14 @@ module.exports = {
                 `║ ▸ *From*  : r/${data.subreddit}`,
                 `║ ▸ *Upvotes* : 👍 ${(data.ups || 0).toLocaleString()}`,
                 `║`,
-                `╚═|〔 ${name} 〕`,
+                `╚═╝`,
             ].join('\n');
 
             await sock.sendMessage(chatId, { image: buf, caption }, { quoted: msg });
 
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  MEME 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  MEME 〕\n║\n║ ▸ *Status* : ❌ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
