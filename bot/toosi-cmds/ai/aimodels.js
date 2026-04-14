@@ -18,6 +18,10 @@ async function pollinationsAI(prompt, model = 'openai', timeoutMs = 30000) {
     } finally { clearTimeout(timer); }
 }
 
+function fmtReply(reply) {
+    return reply.split('\n').map(l => `║ ${l}`).join('\n');
+}
+
 function makeModel({ name, aliases, description, model, label, emoji }) {
     return {
         name, aliases, description,
@@ -37,7 +41,7 @@ function makeModel({ name, aliases, description, model, label, emoji }) {
                 await sock.sendMessage(chatId, { react: { text: emoji, key: msg.key } });
                 const reply = await pollinationsAI(prompt, model);
                 await sock.sendMessage(chatId, {
-                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n${reply}\n║\n╚═|〔 ${botName} 〕`
+                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n${fmtReply(reply)}\n║\n╚═|〔 ${botName} 〕`
                 }, { quoted: msg });
             } catch (e) {
                 await sock.sendMessage(chatId, {
