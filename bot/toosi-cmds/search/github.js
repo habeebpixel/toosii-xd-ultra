@@ -4,6 +4,25 @@ const { getBotName } = require('../../lib/botname');
 
 const GH_API = 'https://api.github.com';
 
+// Accept: "user/repo", "https://github.com/user/repo", "@user", full profile URLs
+function parseGHRepo(args) {
+    const raw = args.join(' ').replace(/\s+/g, '').trim();
+    // Full URL → extract path after github.com/
+    const urlMatch = raw.match(/github\.com\/([^/?#]+\/[^/?#]+)/i);
+    if (urlMatch) return urlMatch[1].replace(/\.git$/, '');
+    // Already user/repo
+    if (raw.includes('/')) return raw.replace(/\.git$/, '');
+    return raw;
+}
+
+function parseGHUser(args) {
+    const raw = args.join(' ').trim();
+    // Full profile URL
+    const urlMatch = raw.match(/github\.com\/([^/?#]+)/i);
+    if (urlMatch) return urlMatch[1];
+    return raw.replace(/^@/, '');
+}
+
 async function ghFetch(path) {
     const headers = {
         'User-Agent': 'ToosiiBot/1.0',
@@ -49,7 +68,7 @@ module.exports = [
             const name   = getBotName();
             try { await sock.sendMessage(chatId, { react: { text: '🐙', key: msg.key } }); } catch {}
 
-            const username = args[0]?.replace(/^@/, '').trim();
+            const username = parseGHUser(args);
             if (!username) {
                 return sock.sendMessage(chatId, {
                     text: [
@@ -121,10 +140,10 @@ module.exports = [
             const name   = getBotName();
             try { await sock.sendMessage(chatId, { react: { text: '📦', key: msg.key } }); } catch {}
 
-            const query = args.join('/').replace(/\s+/g, '').trim();
+            const query = parseGHRepo(args);
             if (!query || !query.includes('/')) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  GITHUB REPO 📦 〕\n║\n║ ▸ *Usage*   : ${prefix}ghrepo <user/repo>\n║ ▸ *Example* : ${prefix}ghrepo TOOSII102/toosii-xd-ultra\n║\n╚═|〔 ${name} 〕`
+                    text: `╔═|〔  GITHUB REPO 📦 〕\n║\n║ ▸ *Usage*   : ${prefix}ghrepo <user/repo>\n║ ▸ *Example* : ${prefix}ghrepo TOOSII102/toosii-xd-ultra\n║ ▸ *Also works* : ${prefix}ghrepo https://github.com/user/repo\n║\n╚═|〔 ${name} 〕`
                 }, { quoted: msg });
             }
 
