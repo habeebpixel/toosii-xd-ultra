@@ -14,14 +14,14 @@ module.exports = {
 
         if (!ctx.isOwner()) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═╝`
             }, { quoted: msg });
         }
 
         const text = args.join(' ').trim();
         if (!text) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Usage* : ${prefix}broadcast <message>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Usage* : ${prefix}broadcast <message>\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -33,7 +33,7 @@ module.exports = {
 
         if (groupIds.length === 0) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Status* : ❌ Bot is in no groups\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Status* : ❌ Bot is in no groups\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -51,7 +51,7 @@ module.exports = {
         }
 
         await sock.sendMessage(chatId, {
-            text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Sent*   : ✅ ${sent} groups\n║ ▸ *Failed* : ❌ ${failed} groups\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  BROADCAST 〕\n║\n║ ▸ *Sent*   : ✅ ${sent} groups\n║ ▸ *Failed* : ❌ ${failed} groups\n║\n╚═╝`
         }, { quoted: msg });
     }
 };
