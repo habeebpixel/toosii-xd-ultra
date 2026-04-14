@@ -15,14 +15,14 @@ module.exports = {
 
         if (!ctx.isOwner()) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Status* : ❌ Owner only\n║\n╚═╝`
             }, { quoted: msg });
         }
 
         const code = args.join(' ').trim();
         if (!code) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Usage* : ${prefix}eval <js code>\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Usage* : ${prefix}eval <js code>\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -33,11 +33,11 @@ module.exports = {
             const output = util.inspect(result, { depth: 3, compact: true }).slice(0, 2000);
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Input*\n║ ${code.slice(0, 200)}\n║\n║ ▸ *Output*\n║ ${output}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Input*\n║ ${code.slice(0, 200)}\n║\n║ ▸ *Output*\n║ ${output}\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Error*\n║ ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  EVAL 〕\n║\n║ ▸ *Error*\n║ ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
