@@ -26,7 +26,7 @@ module.exports = {
 
         if (!ctxInfo?.stanzaId) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Usage*  : Reply to a message\n║             with *${prefix}del*\n║ ▸ *Access* : Owner · Sudo · Admins\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Usage*  : Reply to a message\n║             with *${prefix}del*\n║ ▸ *Access* : Owner · Sudo · Admins\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -50,7 +50,7 @@ module.exports = {
         if (!canDelete) {
             try { await sock.sendMessage(chatId, { react: { text: '🚫', key: msg.key } }); } catch {}
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Status* : ❌ Permission denied\n║ ▸ *Access* : Owner · Sudo · Admins\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Status* : ❌ Permission denied\n║ ▸ *Access* : Owner · Sudo · Admins\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -72,7 +72,7 @@ module.exports = {
         } catch (e) {
             try { await sock.sendMessage(chatId, { react: { text: '❌', key: msg.key } }); } catch {}
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DEL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
 
