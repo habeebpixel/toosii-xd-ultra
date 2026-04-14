@@ -92,7 +92,7 @@ async function handleChatbotMessage(sock, msg) {
         const reply = await pollinationsReply(text);
         const name  = getBotName();
         await sock.sendMessage(chatId, {
-            text: `╔═|〔  🤖 TOOSII AI 〕\n║\n${formatReply(reply)}\n║\n╚═|〔 ${name} 〕`
+            text: `╔═|〔  🤖 TOOSII AI 〕\n║\n${formatReply(reply)}\n║\n╚═╝`
         }, { quoted: msg });
     } catch {
         // silent — chatbot failures must not flood the chat
@@ -129,7 +129,7 @@ module.exports = [
             const modeArg = (args[1] || '').toLowerCase(); // 'mention' or 'all'
 
             const H   = `╔═|〔  🤖 CHATBOT 〕`;
-            const F   = `╚═|〔 ${name} 〕`;
+            const F   = `╚═╝`;
             const SEP = '║';
 
             // ── list (owner/sudo only) ────────────────────────────────────────
