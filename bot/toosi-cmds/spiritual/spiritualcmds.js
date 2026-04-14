@@ -23,7 +23,7 @@ const bibleCmd = {
         const q = args.join(' ').trim();
         if (!q) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  BIBLE SEARCH 〕\n║\n║ ▸ *Usage*   : ${prefix}biblesearch <keyword>\n║ ▸ *Example* : ${prefix}biblesearch love\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  BIBLE SEARCH 〕\n║\n║ ▸ *Usage*   : ${prefix}biblesearch <keyword>\n║ ▸ *Example* : ${prefix}biblesearch love\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -39,12 +39,12 @@ const bibleCmd = {
                 const text = v.text || v.verse_text || v.content || '';
                 if (ref || text) out += `\n║ 📖 *${ref}*\n║   _${String(text).slice(0, 200)}_\n║`;
             }
-            out += `\n╚═|〔 ${name} 〕`;
+            out += `\n╚═╝`;
 
             await sock.sendMessage(chatId, { text: out }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  BIBLE SEARCH 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  BIBLE SEARCH 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -72,11 +72,11 @@ const randBibleCmd = {
             const trans = r?.translation?.name || 'Bible';
 
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  DAILY VERSE 〕\n║\n║ ▸ *Ref*     : ${ref}\n║ ▸ *Version* : ${trans}\n║\n_${text.slice(0, 500)}_\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DAILY VERSE 〕\n║\n║ ▸ *Ref*     : ${ref}\n║ ▸ *Version* : ${trans}\n║\n_${text.slice(0, 500)}_\n║\n╚═╝`
             }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  DAILY VERSE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  DAILY VERSE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -99,7 +99,7 @@ const aiBibleCmd = {
 
         if (!q) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  AI BIBLE 〕\n║\n║ ▸ *Usage*   : ${prefix}aibibl <question>\n║ ▸ *Example* : ${prefix}aibibl who is Jesus\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  AI BIBLE 〕\n║\n║ ▸ *Usage*   : ${prefix}aibibl <question>\n║ ▸ *Example* : ${prefix}aibibl who is Jesus\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -119,12 +119,12 @@ const aiBibleCmd = {
                 const plain = r?.answer || r?.text || String(r || '').slice(0, 1000);
                 out += `\n${plain}\n║`;
             }
-            out += `\n╚═|〔 ${name} 〕`;
+            out += `\n╚═╝`;
 
             await sock.sendMessage(chatId, { text: out }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  AI BIBLE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  AI BIBLE 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -156,12 +156,12 @@ const surahListCmd = {
             for (const s of slice) {
                 out += `\n║ ${String(s.number).padStart(3, ' ')}. ${s.name || s.englishName} — ${s.englishNameTranslation || s.meaning || ''}`;
             }
-            out += `\n║\n║ ▸ Page ${page}/${total} — use ${prefix}surahlist ${page + 1 <= total ? page + 1 : 1} for next\n╚═|〔 ${name} 〕`;
+            out += `\n║\n║ ▸ Page ${page}/${total} — use ${prefix}surahlist ${page + 1 <= total ? page + 1 : 1} for next\n╚═╝`;
 
             await sock.sendMessage(chatId, { text: out }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  SURAH LIST 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  SURAH LIST 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -184,7 +184,7 @@ const aiMuslimCmd = {
 
         if (!q) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  AI MUSLIM 〕\n║\n║ ▸ *Usage*   : ${prefix}aimuslim <question>\n║ ▸ *Example* : ${prefix}aimuslim what is Ramadan\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  AI MUSLIM 〕\n║\n║ ▸ *Usage*   : ${prefix}aimuslim <question>\n║ ▸ *Example* : ${prefix}aimuslim what is Ramadan\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -205,12 +205,12 @@ const aiMuslimCmd = {
                 const plain = data?.result?.answer || String(data?.result || '').slice(0, 1000);
                 out += `\n${plain}\n║`;
             }
-            out += `\n╚═|〔 ${name} 〕`;
+            out += `\n╚═╝`;
 
             await sock.sendMessage(chatId, { text: out }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  AI MUSLIM 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  AI MUSLIM 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
@@ -230,7 +230,7 @@ const hymnCmd = {
         const num = parseInt(args[0]);
         if (!num || num < 1 || num > 695) {
             return sock.sendMessage(chatId, {
-                text: `╔═|〔  ADVENTIST HYMNAL 〕\n║\n║ ▸ *Usage*   : ${prefix}hymn <number>\n║ ▸ *Example* : ${prefix}hymn 1\n║ ▸ *Range*   : 1 – 695\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  ADVENTIST HYMNAL 〕\n║\n║ ▸ *Usage*   : ${prefix}hymn <number>\n║ ▸ *Example* : ${prefix}hymn 1\n║ ▸ *Range*   : 1 – 695\n║\n╚═╝`
             }, { quoted: msg });
         }
 
@@ -255,12 +255,12 @@ const hymnCmd = {
                 }
                 out += `║`;
             }
-            out += `\n╚═|〔 ${name} 〕`;
+            out += `\n╚═╝`;
 
             await sock.sendMessage(chatId, { text: out }, { quoted: msg });
         } catch (e) {
             await sock.sendMessage(chatId, {
-                text: `╔═|〔  ADVENTIST HYMNAL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${name} 〕`
+                text: `╔═|〔  ADVENTIST HYMNAL 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
             }, { quoted: msg });
         }
     }
