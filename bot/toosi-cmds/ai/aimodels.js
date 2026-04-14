@@ -33,7 +33,7 @@ function makeModel({ name, aliases, description, model, label, emoji }) {
 
             if (!prompt) {
                 return sock.sendMessage(chatId, {
-                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n║ ▸ *Usage*   : ${prefix}${name} <your question>\n║ ▸ *Example* : ${prefix}${name} explain quantum computing\n║\n╚═|〔 ${botName} 〕`
+                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n║ ▸ *Usage*   : ${prefix}${name} <your question>\n║ ▸ *Example* : ${prefix}${name} explain quantum computing\n║\n╚═╝`
                 }, { quoted: msg });
             }
 
@@ -41,11 +41,11 @@ function makeModel({ name, aliases, description, model, label, emoji }) {
                 await sock.sendMessage(chatId, { react: { text: emoji, key: msg.key } });
                 const reply = await pollinationsAI(prompt, model);
                 await sock.sendMessage(chatId, {
-                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n${fmtReply(reply)}\n║\n╚═|〔 ${botName} 〕`
+                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n${fmtReply(reply)}\n║\n╚═╝`
                 }, { quoted: msg });
             } catch (e) {
                 await sock.sendMessage(chatId, {
-                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═|〔 ${botName} 〕`
+                    text: `╔═|〔  ${emoji} ${label} 〕\n║\n║ ▸ *Status* : ❌ Failed\n║ ▸ *Reason* : ${e.message}\n║\n╚═╝`
                 }, { quoted: msg });
             }
         }
