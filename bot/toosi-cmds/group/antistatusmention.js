@@ -18,6 +18,13 @@ function loadCfg() {
 function saveCfg(d) {
     try { fs.writeFileSync(CFG_FILE, JSON.stringify(d, null, 2)); } catch {}
 }
+
+// Reset all groups to OFF on every bot startup
+try {
+    const _boot = loadCfg(); let _dirty = false;
+    for (const id of Object.keys(_boot)) { if (_boot[id]?.enabled) { _boot[id].enabled = false; _dirty = true; } }
+    if (_dirty) saveCfg(_boot);
+} catch {}
 function loadWarns() {
     try { return JSON.parse(fs.readFileSync(WARN_FILE, 'utf8')); } catch { return {}; }
 }
