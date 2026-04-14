@@ -2998,7 +2998,7 @@ const memoryMonitor = {
                     setImmediate(() => this.trimCaches(memMB > 400));
                 }
             } catch {}
-        }, 30 * 1000);
+        }, 15 * 1000);
         // Routine trim every 3 minutes regardless of memory level
         this._trimInterval = setInterval(() => {
             try { this.trimCaches(false); } catch {}
@@ -4526,6 +4526,7 @@ const _dbInitPromise = initDatabase().catch((err) => {
 // messages (after 440 or auto-restart) are never double-processed ──────────
 const _processedMsgIds = new Set();
 const _MSG_DEDUP_MAX   = 500;
+const _subscribedPresenceJids = new Set(); // dedup: avoid re-subscribing same JID
 
 // ====== MAIN BOT FUNCTION ======
 async function startBot(loginMode = 'auto', loginData = null) {
@@ -4536,6 +4537,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                 stopHeartbeat();
                 SOCKET_INSTANCE.ev.removeAllListeners();
                 SOCKET_INSTANCE.ws.close();
+                _subscribedPresenceJids.clear(); // reset presence subscriptions on reconnect
             } catch (closeErr) {}
             SOCKET_INSTANCE = null;
             currentSock = null;
@@ -4743,7 +4745,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     && content && typeof content === 'object'
                     && !content.react && !content.delete && !content.poll) {
                     const _apJid = resolvePresenceJid(jid);
-                    try { await sock.presenceSubscribe(_apJid); } catch {}
+                    if (!_subscribedPresenceJids.has(_apJid)) { try { await sock.presenceSubscribe(_apJid); _subscribedPresenceJids.add(_apJid); } catch {} }
                     try { await sock.sendPresenceUpdate(_apType, _apJid); } catch {}
                     await new Promise(r => setTimeout(r, 4000));
                 }
@@ -7172,7 +7174,7 @@ async function handleIncomingMessage(sock, msg) {
                 && _pType) {
                 const _pJid = resolvePresenceJid(chatId);
                 (async () => {
-                    try { await sock.presenceSubscribe(_pJid); } catch {}
+                    if (!_subscribedPresenceJids.has(_pJid)) { try { await sock.presenceSubscribe(_pJid); _subscribedPresenceJids.add(_pJid); } catch {} }
                     try { await sock.sendPresenceUpdate(_pType, _pJid); } catch {}
                 })();
             }
@@ -7352,7 +7354,7 @@ async function handleIncomingMessage(sock, msg) {
                             const _presType2 = getPresenceType(chatId);
                             if (_presType2) {
                                 const _presJid2 = resolvePresenceJid(chatId);
-                                try { await sock.presenceSubscribe(_presJid2); } catch {}
+                                if (!_subscribedPresenceJids.has(_presJid2)) { try { await sock.presenceSubscribe(_presJid2); _subscribedPresenceJids.add(_presJid2); } catch {} }
                                 try {
                                     await sock.sendPresenceUpdate(_presType2, _presJid2);
                                     UltraCleanLogger.info(`✅ Presence sent: ${_presType2} → ${_presJid2}`);
@@ -7612,7 +7614,7 @@ async function handleIncomingMessage(sock, msg) {
                     const _presType = getPresenceType(chatId);
                     if (_presType) {
                         const _presJid = resolvePresenceJid(chatId);
-                        try { await sock.presenceSubscribe(_presJid); } catch {}
+                        if (!_subscribedPresenceJids.has(_presJid)) { try { await sock.presenceSubscribe(_presJid); _subscribedPresenceJids.add(_presJid); } catch {} }
                         try {
                             await sock.sendPresenceUpdate(_presType, _presJid);
                             UltraCleanLogger.info(`✅ Presence sent: ${_presType} → ${_presJid}`);
