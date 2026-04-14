@@ -4949,7 +4949,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     ];
                     for (const file of dataFiles) {
                         try {
-                            const p = path.join(__dirname, file);
+                            const p = join(__dirname, file);
                             if (!fs.existsSync(p)) continue;
                             const d = JSON.parse(fs.readFileSync(p, 'utf8'));
                             let ch = false;
@@ -4961,7 +4961,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     }
                     // Reset global autoconfig (antideletestatus, autoreactstatus, etc.)
                     try {
-                        const p = path.join(__dirname, './data/autoconfig.json');
+                        const p = join(__dirname, './data/autoconfig.json');
                         if (fs.existsSync(p)) {
                             const d = JSON.parse(fs.readFileSync(p, 'utf8'));
                             let ch = false;
