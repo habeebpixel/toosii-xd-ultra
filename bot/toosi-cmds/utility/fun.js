@@ -68,8 +68,8 @@ const factCmd = {
 };
 
 const quoteCmd = {
-    name: 'quote',
-    aliases: ['quotes', 'inspire', 'motivation', 'quotabl', 'qfun'],
+    name: 'qfun',
+    aliases: ['quotes', 'quotabl', 'funquote'],
     description: 'Get a random inspirational quote',
     category: 'utility',
     async execute(sock, msg, args, prefix) {
