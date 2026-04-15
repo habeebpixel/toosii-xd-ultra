@@ -6240,6 +6240,8 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     if (!viewOnce) continue;
                     
                     const config = loadAntiViewOnceConfig();
+                    // Respect enabled flag — reaction capture also obeys on/off setting
+                    if (config.enabled === false) continue;
                     // Resolve ownerJid — config.ownerJid SKIPPED (stale disk value), env/creds/JID only
                         let ownerJid = '';
                         if (!ownerJid) {
@@ -6264,6 +6266,10 @@ async function startBot(loginMode = 'auto', loginData = null) {
                                 ownerJid = `${_rAutoNum}@s.whatsapp.net`;
                         }
                         if (!ownerJid) continue;
+                    // Only trigger for owner reactions, not random group members
+                    const _rReactorNum = (reactorJid || '').split('@')[0].split(':')[0];
+                    const _rOwnerNum   = ownerJid.split('@')[0];
+                    if (!reaction.key?.fromMe && _rReactorNum !== _rOwnerNum) continue;
                     
                     const { type, media } = viewOnce;
                     const cleanMedia = { ...media };
