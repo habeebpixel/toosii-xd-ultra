@@ -12,13 +12,18 @@
     "multi-device"
   ],
   "env": {
+    "SESSION_ID": {
+      "description": "Your session ID — get it FREE at: https://toosiitechdevelopertools.zone.id/session",
+      "value": "",
+      "required": true
+    },
     "OWNER_NUMBER": {
-      "description": "Your WhatsApp number with country code, no + sign (e.g. 254712345678)",
+      "description": "Your WhatsApp number with country code, no + (e.g. 254712345678)",
       "value": "",
       "required": true
     },
     "PREFIX": {
-      "description": "Bot command prefix (default is comma ,)",
+      "description": "Bot command prefix (default: comma)",
       "value": ",",
       "required": false
     },
@@ -27,9 +32,19 @@
       "value": "TOOSII-XD ULTRA",
       "required": false
     },
-    "SESSION_SECRET": {
-      "description": "Session secret key for encryption",
+    "OWNER_NAME": {
+      "description": "Your name shown in menus",
       "value": "",
+      "required": false
+    },
+    "MODE": {
+      "description": "public = everyone can use | private = owner only",
+      "value": "public",
+      "required": false
+    },
+    "TIME_ZONE": {
+      "description": "Timezone for time commands (e.g. Africa/Nairobi)",
+      "value": "Africa/Nairobi",
       "required": false
     }
   },
