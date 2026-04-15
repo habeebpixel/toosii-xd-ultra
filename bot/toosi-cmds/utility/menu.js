@@ -128,8 +128,10 @@ module.exports = {
         lines.push(`╔═| ●-¤○《  ${name}  》○¤-●`);
         lines.push(`║`);
         lines.push(`║  ▸ ■  *Prefix*   :  ${prefix || 'none'}`);
-        const _menuOwner = global.OWNER_NUMBER || global.OWNER_CLEAN_NUMBER || cfg.OWNER_NUMBER || '';
-        lines.push(`║  ▸ ■  *Owner*    :  ${_menuOwner ? '+' + _menuOwner.replace(/[^0-9]/g,'') : 'Unknown'}`);
+        const _rawMenuOwner = cfg.OWNER_NUMBER || process.env.OWNER_NUMBER || global.OWNER_NUMBER || global.OWNER_CLEAN_NUMBER || '';
+          const _cleanMenuNum = _rawMenuOwner.replace(/[^0-9]/g, '');
+          const _menuOwner = _cleanMenuNum.length > 0 && _cleanMenuNum.length <= 15 ? _cleanMenuNum : '';
+          lines.push(`║  ▸ ■  *Owner*    :  ${_menuOwner ? '+' + _menuOwner : 'Unknown'}`);
         lines.push(`║  ▸ ■  *Mode*     :  ${mode}`);
         lines.push(`║  ▸ ■  *Version*  :  v${version}`);
         lines.push(`║  ▸ ■  *Platform* :  ${detectPlatform()}`);
