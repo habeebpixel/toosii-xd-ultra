@@ -14,8 +14,10 @@ module.exports = {
         const h = Math.floor(uptime / 3600);
         const m = Math.floor((uptime % 3600) / 60);
         const s = Math.floor(uptime % 60);
-        const ownerNum = global.OWNER_NUMBER || global.OWNER_CLEAN_NUMBER || cfg.OWNER_NUMBER || '';
-        const owner  = ownerNum ? `+${ownerNum.replace(/[^0-9]/g,'')}` : 'Unknown';
+        const _rawOwner = cfg.OWNER_NUMBER || process.env.OWNER_NUMBER || global.OWNER_NUMBER || global.OWNER_CLEAN_NUMBER || '';
+          const _cleanOwnerNum = _rawOwner.replace(/[^0-9]/g, '');
+          const ownerNum = _cleanOwnerNum.length > 0 && _cleanOwnerNum.length <= 15 ? _cleanOwnerNum : '';
+          const owner  = ownerNum ? `+${ownerNum}` : 'Unknown';
         const mode   = (process.env.BOT_MODE || cfg.MODE || 'public').toUpperCase();
 
         const text = [
