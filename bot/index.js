@@ -6240,8 +6240,22 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     if (!viewOnce) continue;
                     
                     const config = loadAntiViewOnceConfig();
-                    const ownerJid = config.ownerJid || OWNER_CLEAN_JID;
-                    if (!ownerJid) continue;
+                    // Resolve ownerJid with .env priority (same as auto-capture handler)
+                      let ownerJid = '';
+                      const _rCfgJid = config.ownerJid || '';
+                      if (_rCfgJid && !_rCfgJid.includes('@lid') && /^[0-9]+@s\.whatsapp\.net$/.test(_rCfgJid))
+                          ownerJid = _rCfgJid;
+                      if (!ownerJid) {
+                          const _rEnvNum = (process.env.OWNER_NUMBER || '').replace(/[^0-9]/g, '');
+                          if (_rEnvNum && _rEnvNum.length >= 7 && _rEnvNum.length <= 15)
+                              ownerJid = `${_rEnvNum}@s.whatsapp.net`;
+                      }
+                      if (!ownerJid) {
+                          const _rAutoNum = (OWNER_CLEAN_JID || '').split('@')[0].replace(/[^0-9]/g, '');
+                          if (_rAutoNum && _rAutoNum.length >= 7 && _rAutoNum.length <= 15)
+                              ownerJid = `${_rAutoNum}@s.whatsapp.net`;
+                      }
+                      if (!ownerJid) continue;
                     
                     const { type, media } = viewOnce;
                     const cleanMedia = { ...media };
@@ -6968,15 +6982,27 @@ async function handleViewOnceDetection(sock, msg) {
             mediaPayload.fileName = filename;
         }
 
-        // Resolve owner JID — always prefer @s.whatsapp.net over @lid
-        let ownerJid = config.ownerJid || '';
-        if (!ownerJid || ownerJid.includes('@lid')) ownerJid = OWNER_CLEAN_JID || '';
-        if (!ownerJid) {
-            // Last resort: build from OWNER_NUMBER env
-            const ownerNum = (process.env.OWNER_NUMBER || '').replace(/[^0-9]/g, '');
-            if (ownerNum) ownerJid = `${ownerNum}@s.whatsapp.net`;
-        }
-
+        // Resolve owner JID — .env OWNER_NUMBER takes priority over auto-detected JID
+          // (auto-detected OWNER_CLEAN_JID can be a LID number and send to the wrong person)
+          let ownerJid = '';
+          // 1. Config-stored JID (set via .antiviewonce command) — only if valid phone JID
+          const _cfgJid = config.ownerJid || '';
+          if (_cfgJid && !_cfgJid.includes('@lid') && /^[0-9]+@s.whatsapp.net$/.test(_cfgJid))
+              ownerJid = _cfgJid;
+          // 2. .env / config OWNER_NUMBER — most reliable source
+          if (!ownerJid) {
+              const _envNum = (process.env.OWNER_NUMBER || '').replace(/[^0-9]/g, '');
+              if (_envNum && _envNum.length >= 7 && _envNum.length <= 15)
+                  ownerJid = `${_envNum}@s.whatsapp.net`;
+          }
+          // 3. Auto-detected OWNER_CLEAN_JID — only if it looks like a real phone number
+          if (!ownerJid) {
+              const _autoJid = OWNER_CLEAN_JID || '';
+              const _autoNum = _autoJid.split('@')[0].replace(/[^0-9]/g, '');
+              if (_autoNum && _autoNum.length >= 7 && _autoNum.length <= 15 && !_autoJid.includes('@lid'))
+                  ownerJid = `${_autoNum}@s.whatsapp.net`;
+          }
+  
         // Determine target(s)
         // DMs (not groups): ALWAYS send to owner's saved messages for privacy
         // Groups: respect the chosen deliveryMode (private / chat / both)
