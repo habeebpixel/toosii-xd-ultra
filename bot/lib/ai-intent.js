@@ -238,7 +238,7 @@
           '8ball':   '../toosi-cmds/fun/eightball.js',
           imagine:   '../toosi-cmds/ai/imagine.js',
           time:      '../toosi-cmds/utility/worldclock.js',
-          tts:       '../toosi-cmds/utility/tts.js',
+          tts:       '../toosi-cmds/ai/aitools.js',
       };
 
       // Sports player
