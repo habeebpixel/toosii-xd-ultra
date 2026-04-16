@@ -5194,7 +5194,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                         const filled        = Math.round(ramPct / 10);
                         const ramBar        = '█'.repeat(filled) + '░'.repeat(10 - filled);
 
-                        const successMessage = `╔═|〔  ${getCurrentBotName()} 〕\n║\n║ ▸ *Name*     : ${getCurrentBotName()}\n║ ▸ *Prefix*   : ${getCurrentPrefix() || 'none'}\n║ ▸ *Owner*    : +${displayOwnerNumber}\n║ ▸ *Mode*     : ${modeDisplay}\n║ ▸ *Platform* : ${detectPlatform()}\n║ ▸ *Version*  : v${VERSION}\n║ ▸ *Uptime*   : ${uptimeStr}\n║ ▸ *Commands* : ${commands.size}\n║ ▸ *Usage*    : ${usedMB} MB of ${totalGB} GB\n║ ▸ *RAM*      : [${ramBar}] ${ramPct}%\n║ ▸ *Speed*    : ~${Date.now() - _pingStart}ms\n║ ▸ *Status*   : CONNECTED ✅\n║\n╚═|〔 SYSTEM ONLINE  〕`;
+                        const successMessage = `╔═|〔  ${getCurrentBotName()} 〕\n║\n║ ▸ *Name*     : ${getCurrentBotName()}\n║ ▸ *Prefix*   : ${getCurrentPrefix() || 'none'}\n║ ▸ *Owner*    : +${displayOwnerNumber}\n║ ▸ *Mode*     : ${modeDisplay}\n║ ▸ *Platform* : ${detectPlatform()}\n║ ▸ *Version*  : v${VERSION}\n║ ▸ *Uptime*   : ${uptimeStr}\n║ ▸ *Commands* : ${new Set([...commands.values()].map(c => c.name)).size}\n║ ▸ *Usage*    : ${usedMB} MB of ${totalGB} GB\n║ ▸ *RAM*      : [${ramBar}] ${ramPct}%\n║ ▸ *Speed*    : ~${Date.now() - _pingStart}ms\n║ ▸ *Status*   : CONNECTED ✅\n║\n╚═|〔 SYSTEM ONLINE  〕`;
 
                         const sendPromise = sock.sendMessage(targetJid, { text: successMessage });
                         const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000));
@@ -5426,10 +5426,10 @@ async function startBot(loginMode = 'auto', loginData = null) {
 
         await commandLoadPromise;
         if (!commandsLoaded) {
-            UltraCleanLogger.success(`✅ All ${commands.size} commands loaded successfully`);
+            UltraCleanLogger.success(`✅ All ${new Set([...commands.values()].map(c => c.name)).size} commands loaded successfully`);
             commandsLoaded = true;
         }
-        updateWebStatus({ commands: commands.size, botName: getCurrentBotName(), version: VERSION, botMode: BOT_MODE, prefix: getCurrentPrefix(), owner: global.OWNER_NUMBER || 'Unknown', antispam: !!(globalThis._antispamConfig?.enabled), antibug: !!(globalThis._antibugConfig?.enabled), antilink: !!(globalThis._antilinkConfig?.enabled), antidelete: true, antiviewonce: !!(globalThis._webStatus?.antiviewonce), autoread: false });
+        updateWebStatus({ commands: new Set([...commands.values()].map(c => c.name)).size, botName: getCurrentBotName(), version: VERSION, botMode: BOT_MODE, prefix: getCurrentPrefix(), owner: global.OWNER_NUMBER || 'Unknown', antispam: !!(globalThis._antispamConfig?.enabled), antibug: !!(globalThis._antibugConfig?.enabled), antilink: !!(globalThis._antilinkConfig?.enabled), antidelete: true, antiviewonce: !!(globalThis._webStatus?.antiviewonce), autoread: false });
 
         sock.ev.on('group-participants.update', async (update) => {
             try {
@@ -6405,10 +6405,10 @@ async function startBot(loginMode = 'auto', loginData = null) {
         await commandLoadPromise;
         
         if (!commandsLoaded) {
-            UltraCleanLogger.success(`✅ All ${commands.size} commands loaded successfully`);
+            UltraCleanLogger.success(`✅ All ${new Set([...commands.values()].map(c => c.name)).size} commands loaded successfully`);
             commandsLoaded = true;
         }
-        updateWebStatus({ commands: commands.size, botName: getCurrentBotName(), version: VERSION, botMode: BOT_MODE, prefix: getCurrentPrefix(), owner: global.OWNER_NUMBER || 'Unknown', antispam: !!(globalThis._antispamConfig?.enabled), antibug: !!(globalThis._antibugConfig?.enabled), antilink: !!(globalThis._antilinkConfig?.enabled), antidelete: true, antiviewonce: !!(globalThis._webStatus?.antiviewonce), autoread: false });
+        updateWebStatus({ commands: new Set([...commands.values()].map(c => c.name)).size, botName: getCurrentBotName(), version: VERSION, botMode: BOT_MODE, prefix: getCurrentPrefix(), owner: global.OWNER_NUMBER || 'Unknown', antispam: !!(globalThis._antispamConfig?.enabled), antibug: !!(globalThis._antibugConfig?.enabled), antilink: !!(globalThis._antilinkConfig?.enabled), antidelete: true, antiviewonce: !!(globalThis._webStatus?.antiviewonce), autoread: false });
 
         setTimeout(() => {
             if (!isConnected) {
@@ -7800,7 +7800,7 @@ async function handleDefaultCommands(commandName, sock, msg, args, currentPrefix
                     `║`,
                     `║ ▸ *Prefix*   : "${isPrefixless ? 'none' : currentPrefix}"`,
                     `║ ▸ *Mode*     : ${BOT_MODE}`,
-                    `║ ▸ *Commands* : ${commands.size}`,
+                    `║ ▸ *Commands* : ${new Set([...commands.values()].map(c => c.name)).size}`,
                     `║`,
                     `╠═| ■-🔧 QUICK HELP -■`,
                     `║  ◇ ${prefixDisplay}menu        → full command list`,
@@ -7831,7 +7831,7 @@ async function handleDefaultCommands(commandName, sock, msg, args, currentPrefix
                         `║ ▸ *Owner*    : +${ownerInfo.ownerNumber}`,
                         `║ ▸ *Prefix*   : "${isPrefixless ? 'none' : currentPrefix}"`,
                         `║ ▸ *Mode*     : ${BOT_MODE}`,
-                        `║ ▸ *Commands* : ${commands.size}`,
+                        `║ ▸ *Commands* : ${new Set([...commands.values()].map(c => c.name)).size}`,
                         `║ ▸ *Platform* : ${detectPlatform()}`,
                         `║ ▸ *Status*   : Online ✅`,
                         `║`,
