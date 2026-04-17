@@ -5157,7 +5157,7 @@ async function startBot(loginMode = 'auto', loginData = null) {
                 
                 // ====== THE ONLY SUCCESS MESSAGE ======
                 setTimeout(async () => {
-                    if (!isConnected || isConflictRecovery || Date.now() - _lastConnectionMsgTime < _MSG_COOLDOWN_MS) return;
+                    if (!isConnected || isConflictRecovery || _lastConnectionMsgTime > 0) return;
                     try {
                         const ownerInfo = jidManager.getOwnerInfo();
                         const displayOwnerNumber = ownerInfo?.ownerNumber ? ownerInfo.ownerNumber.split(':')[0] : 'Not set';
