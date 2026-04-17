@@ -5616,10 +5616,16 @@ async function startBot(loginMode = 'auto', loginData = null) {
                         const hasReaction = !!(c0?.reactionMessage);
                         // React-owner: owner's messages arrive as fromMe append — handle here
                         if (!hasBtn && !hasReaction) {
-                            handleReactOwner(sock, m0).catch(() => {});
-                            return;
-                        }
-                        // fall through — let button responses and reactions be processed
+                              handleReactOwner(sock, m0).catch(() => {});
+                              // Allow prefix commands to fall through — only drop plain non-command text
+                              const _appendTxt = m0.message?.conversation || m0.message?.extendedTextMessage?.text || '';
+                              const _appendPfx = (typeof getCurrentPrefix === 'function') ? getCurrentPrefix() : '';
+                              if (!_appendTxt.trim() || !_appendPfx || !_appendTxt.trim().startsWith(_appendPfx)) {
+                                  return;
+                              }
+                              // Prefix command detected — fall through to full command handler
+                          }
+                          // fall through — let button responses and reactions be processed
                     } else {
                         // For non-fromMe append messages: check for fresh view-once
                         // (view-once can arrive as 'append' when delivered during reconnection/restart)
