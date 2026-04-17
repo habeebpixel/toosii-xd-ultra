@@ -8235,7 +8235,19 @@ async function main() {
         const sessionIdFromEnv = process.env.SESSION_ID;
         const hasEnvSession = sessionIdFromEnv && sessionIdFromEnv.trim() !== '';
         
-        const sessionDirExists = fs.existsSync(SESSION_DIR);
+        // Auto-restore session from update backup if session files are missing
+          const _updateBackupCreds = path.join('./data', 'session_creds_backup.json');
+          if (!fs.existsSync(path.join(SESSION_DIR, 'creds.json')) && fs.existsSync(_updateBackupCreds)) {
+              try {
+                  if (!fs.existsSync(SESSION_DIR)) fs.mkdirSync(SESSION_DIR, { recursive: true });
+                  fs.copyFileSync(_updateBackupCreds, path.join(SESSION_DIR, 'creds.json'));
+                  UltraCleanLogger.success('\u2705 Session restored from update backup');
+              } catch (_restoreErr) {
+                  UltraCleanLogger.warning('\u26a0\ufe0f Could not restore session backup: ' + _restoreErr.message);
+              }
+          }
+
+          const sessionDirExists = fs.existsSync(SESSION_DIR);
         const credsPath = path.join(SESSION_DIR, 'creds.json');
         const credsExist = fs.existsSync(credsPath);
 
