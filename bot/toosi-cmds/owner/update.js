@@ -9,8 +9,7 @@ const REPO   = 'TOOSII102/toosii-xd-ultra';
 const BRANCH = 'heroku';
 
 const IS_HEROKU = !!process.env.DYNO;
-const IS_REPLIT = !!process.env.REPL_ID;
-const PLATFORM  = IS_HEROKU ? 'Heroku' : IS_REPLIT ? 'Replit' : 'VPS/Panel';
+const PLATFORM  = IS_HEROKU ? 'Heroku' : 'VPS/Panel';
 
 const SESSION_FILE = path.join(__dirname, '../../session/creds.json');
 const GITHUB_URL   = `https://github.com/${REPO}.git`;
