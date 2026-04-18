@@ -8,29 +8,38 @@ const CMDS_DIR = path.join(__dirname, '..');
 
 const CATEGORY_LABELS = {
     ai:          '🤖 AI',
-    adult:       '🔞 Adult',
-    automation:  '⚙️ Automation',
-    channel:     '📢 Channel',
-    download:    '📥 Download',
-    education:   '📚 Education',
-    fun:         '🎉 Fun',
-    games:       '🎮 Games',
-    group:       '👥 Group',
-    image:       '🖼️ Image',
-    movie:       '🎬 Movie',
-    news:        '📰 News',
-    owner:       '👑 Owner',
-    search:      '🔍 Search',
-    spiritual:   '🕌 Spiritual',
-    sports:      '⚽ Sports',
-    stalker:     '🕵️ Stalker',
-    utility:     '🔧 Utility',
+    adult:       '🔞 ADULT',
+    automation:  '⚙️ AUTOMATION',
+    channel:     '📢 CHANNEL',
+    download:    '📥 DOWNLOAD',
+    education:   '📚 EDUCATION',
+    fun:         '😂 FUN',
+    games:       '🎮 GAMES',
+    group:       '👥 GROUP',
+    image:       '🖼️ IMAGE',
+    movie:       '🎬 MOVIE',
+    news:        '📰 NEWS',
+    owner:       '👑 OWNER',
+    search:      '🔎 SEARCH',
+    spiritual:   '🕊️ SPIRITUAL',
+    sports:      '⚽ SPORTS',
+    stalker:     '🔍 STALKER',
+    utility:     '🔧 UTILITY',
 };
+
+// Category order to match alive output
+const CATEGORY_ORDER = [
+    'utility','owner','ai','group','automation','channel',
+    'download','education','spiritual','fun','sports',
+    'news','stalker','image','movie','search','adult','games'
+];
 
 function getCommandsForCategory(categoryPath) {
     const names = [];
     try {
-        const files = fs.readdirSync(categoryPath).filter(f => f.endsWith('.js') && !f.includes('.test.') && !f.includes('.disabled.'));
+        const files = fs.readdirSync(categoryPath)
+            .filter(f => f.endsWith('.js') && !f.includes('.test.') && !f.includes('.disabled.'))
+            .sort();
         for (const file of files) {
             try {
                 const mod = require(path.join(categoryPath, file));
@@ -54,37 +63,46 @@ module.exports = {
     async execute(sock, msg, args, prefix, ctx) {
         const chatId  = msg.key.remoteJid;
         const botName = getBotName();
-        const foot    = `╚═|〔 ${botName} 〕`;
         const p       = prefix || cfg.PREFIX || '.';
 
-        const categories = fs.readdirSync(CMDS_DIR).filter(item => {
-            return fs.statSync(path.join(CMDS_DIR, item)).isDirectory();
-        }).sort();
+        // Collect all categories
+        const allCats = fs.readdirSync(CMDS_DIR).filter(item =>
+            fs.statSync(path.join(CMDS_DIR, item)).isDirectory()
+        );
+
+        // Sort: known order first, then any extras alphabetically
+        const ordered = [
+            ...CATEGORY_ORDER.filter(c => allCats.includes(c)),
+            ...allCats.filter(c => !CATEGORY_ORDER.includes(c)).sort()
+        ];
 
         const lines = [
-            `╔═|〔  MENU 〕`,
+            `╔═| ●-¤○《  MENU  》○¤-●`,
             `║`,
-            `║  Prefix: *${p}*  |  Bot: *${botName}*`,
+            `║  ▸ ■  *Prefix*  :  ${p}`,
+            `║  ▸ ■  *Bot*     :  ${botName}`,
             `║`,
         ];
 
         let totalCmds = 0;
 
-        for (const cat of categories) {
+        for (const cat of ordered) {
             const catPath = path.join(CMDS_DIR, cat);
             const cmdNames = getCommandsForCategory(catPath);
             if (cmdNames.length === 0) continue;
 
-            const label = CATEGORY_LABELS[cat] || `📁 ${cat.charAt(0).toUpperCase() + cat.slice(1)}`;
-            lines.push(`║  *${label}*`);
-            lines.push(`║  ${cmdNames.map(n => `${p}${n}`).join('  ')}`);
-            lines.push(`║`);
+            const label = CATEGORY_LABELS[cat] || `📁 ${cat.toUpperCase()}`;
+            lines.push(`╠═| ■-${label} -■`);
+            for (const name of cmdNames) {
+                lines.push(`║  ◇ ${p}${name}`);
+            }
             totalCmds += cmdNames.length;
         }
 
-        lines.push(`║ ▸ *Total* : ${totalCmds} commands`);
         lines.push(`║`);
-        lines.push(foot);
+        lines.push(`║  ▸ *Total* : ${totalCmds} commands`);
+        lines.push(`║`);
+        lines.push(`╚═╝`);
 
         await sock.sendMessage(chatId, { text: lines.join('\n') }, { quoted: msg });
     },
