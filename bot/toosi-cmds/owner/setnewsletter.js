@@ -1,25 +1,30 @@
 const fs   = require('fs');
 const path = require('path');
 
-const INVITE_CODE = '0029VbCGMJeEquiVSIthcK03';
-const ENV_PATH    = path.join(__dirname, '../../.env');
+const ENV_PATH = path.join(__dirname, '../../.env');
 
 module.exports = {
     name:        'setnewsletter',
     aliases:     ['setnews', 'newsid'],
-    description: 'Resolve the bot WhatsApp Channel JID and save it to config',
+    description: 'Resolve a WhatsApp Channel JID from its invite code and save it. Usage: .setnewsletter <invite_code>',
     category:    'owner',
     ownerOnly:   true,
 
     async execute(sock, msg, args, prefix, ctx) {
         const chatId = msg.key.remoteJid;
 
+        const inviteCode = args[0] || process.env.NEWSLETTER_INVITE_CODE || '';
+        if (!inviteCode) {
+            return sock.sendMessage(chatId, {
+                text: `╔═|〔  SET NEWSLETTER 〕\n║\n║ ▸ *Usage*  : ${prefix}setnewsletter <invite_code>\n║ ▸ *How*    : Copy the invite code from your\n║             WhatsApp Channel share link\n║             e.g. wa.me/channel/XXXXXX\n║\n╚═╝`
+            }, { quoted: msg });
+        }
+
         try {
             await sock.sendMessage(chatId, { react: { text: '🔍', key: msg.key } });
             await sock.sendMessage(chatId, { text: '🔎 Resolving channel JID from invite link...' }, { quoted: msg });
 
-            // Resolve invite → newsletter metadata
-            const info = await sock.newsletterMetadata('invite', INVITE_CODE);
+            const info = await sock.newsletterMetadata('invite', inviteCode);
 
             if (!info || !info.id) {
                 return sock.sendMessage(chatId, {
