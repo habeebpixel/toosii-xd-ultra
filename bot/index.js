@@ -4764,6 +4764,16 @@ async function startBot(loginMode = 'auto', loginData = null) {
                     content = { ...content, caption: _applyFont(content.caption, _activeFont) };
                 }
             }
+            // ─── Footer style normalizer ─────────────────────────────────────
+            // Strips bot-name from closing line: ╚═|〔 BOTNAME 〕 → ╚═╝
+            if (content && typeof content === 'object' && !content.react && !content.delete) {
+                const _normFooter = s => typeof s === 'string'
+                    ? s.replace(/╚═\|〔[^〕]*〕/g, '╚═╝') : s;
+                if (typeof content.text === 'string')
+                    content = { ...content, text: _normFooter(content.text) };
+                if (typeof content.caption === 'string')
+                    content = { ...content, caption: _normFooter(content.caption) };
+            }
             // ─── Auto typing indicator for all non-command bot replies ────────
             {
                 const _apType = getPresenceType(jid);
