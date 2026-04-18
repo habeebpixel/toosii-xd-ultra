@@ -1,14 +1,1 @@
-{
-  "120363408070773199@g.us": {
-    "enabled": false,
-    "action": "delete",
-    "exemptAdmins": true,
-    "exemptSudos": true
-  },
-  "120363420073857727@g.us": {
-    "enabled": false,
-    "action": "delete",
-    "exemptAdmins": true,
-    "exemptSudos": true
-  }
-}
+{}

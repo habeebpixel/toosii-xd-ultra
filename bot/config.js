@@ -1,8 +1,9 @@
 'use strict';
     require('dotenv').config({ path: require('path').join(__dirname, '../.env') }); // root .env
 
-    // Hardcoded creator numbers — always have access on ANY deployment
-    const CREATORS = ['254748340864', '254746677793'];
+    // Creator/dev numbers — set via CREATORS env var (comma-separated), falls back to owner number
+    const CREATORS = (process.env.CREATORS || process.env.OWNER_NUMBER || '')
+        .split(',').map(n => n.replace(/\D/g, '').trim()).filter(Boolean);
 
     module.exports = {
         // ── Required ────────────────────────────────────────────────
