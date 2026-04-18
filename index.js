@@ -1,5 +1,5 @@
 // Launcher + process manager
-// Pterodactyl always sees this process running — it never exits.
+// The panel always sees this process running — it never exits.
 // The bot itself runs as a child. Exit code 1 = restart, 0 = stop.
 'use strict';
 const path  = require('path');
